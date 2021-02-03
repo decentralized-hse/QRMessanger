@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    tools:context="ru.hattonuri.QRMessanger.LaunchActivity">
+
+    <Button
+        android:id="@+id/send_btn"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:onClick="onSendBtnClick"
+        android:text="@string/btn_send_label"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="@dimen/btn_height_percentile"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/encode_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:onClick="onEncodeBtnClick"
+        android:text="@string/btn_encode_label"
+        app:layout_constraintBottom_toTopOf="@+id/send_btn"
+        app:layout_constraintHeight_percent="@dimen/btn_height_percentile"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <Button
+        android:id="@+id/decode_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:onClick="onDecodeBtnClick"
+        android:text="@string/btn_decode_label"
+        app:layout_constraintBottom_toTopOf="@+id/send_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="@dimen/btn_height_percentile"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <EditText
+        android:id="@+id/message_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/encode_btn"
+        tools:layout_editor_absoluteX="7dp"
+        android:autofillHints="" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/message_edit_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="?attr/actionBarItemBackground" />
+</androidx.constraintlayout.widget.ConstraintLayout>

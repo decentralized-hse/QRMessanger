@@ -1,0 +1,93 @@
+package ru.hattonuri.QRMessanger.utils;
+
+import android.content.ContentResolver;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.HybridBinarizer;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+
+public class ConversionUtils {
+    public static Uri getUri(Context context, int resid) {
+        return (new Uri.Builder())
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(context.getResources().getResourcePackageName(resid))
+                .appendPath(context.getResources().getResourceTypeName(resid))
+                .appendPath(context.getResources().getResourceEntryName(resid))
+                .build();
+    }
+
+    public static Bitmap getUriBitmap(Context context, Uri uri, int requiredSize) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        try {
+            BitmapFactory.decodeStream(context.getContentResolver()
+                    .openInputStream(uri), null, options);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        int width = options.outWidth, height = options.outHeight;
+        int scale = (int) Math.ceil(Math.max((double) width / requiredSize, (double) height / requiredSize));
+
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        try {
+            return BitmapFactory.decodeStream(context.getContentResolver()
+                    .openInputStream(uri), null, o2);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    public static Bitmap encodeQR(String text) {
+        if (text.isEmpty()) {
+            return null;
+        }
+        MultiFormatWriter writer = new MultiFormatWriter();
+        try {
+            BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, 500, 500);
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            return encoder.createBitmap(bitMatrix);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String decodeQR(Bitmap bitmap) {
+        int[] bytes = new int[bitmap.getWidth() * bitmap.getHeight()];
+        bitmap.getPixels(bytes, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+        LuminanceSource source = new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), bytes);
+        BinaryBitmap binaryMap = new BinaryBitmap(new HybridBinarizer(source));
+        MultiFormatReader reader = new MultiFormatReader();
+        try {
+            return reader.decode(binaryMap).getText();
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+}
