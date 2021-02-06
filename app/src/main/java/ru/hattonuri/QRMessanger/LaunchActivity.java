@@ -1,31 +1,35 @@
 package ru.hattonuri.QRMessanger;
 
-import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.security.PublicKey;
+
+import ru.hattonuri.QRMessanger.managers.CryptoManager;
+import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 import ru.hattonuri.QRMessanger.utils.MessagingUtils;
-import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
     private EditText editText;
-    private ImageView imageView;
-
-    private Uri imageUri = null;
+    private ImageManager imageManager;
+    private CryptoManager cryptoManager;
 
     private void setContents() {
         editText = findViewById(R.id.message_edit_text);
-        imageView = findViewById(R.id.imageView);
+        imageManager = new ImageManager(findViewById(R.id.imageView));
+        cryptoManager = new CryptoManager();
     }
 
     @Override
@@ -40,51 +44,67 @@ public class LaunchActivity extends AppCompatActivity {
         if (text.isEmpty()) {
             return;
         }
-        Bitmap qr = ConversionUtils.encodeQR(text);
-        if (qr != null) {
-            imageView.setImageBitmap(qr);
-            PermissionsUtils.verifyPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            imageUri = ConversionUtils.getImageUri(this, qr);
+        if (text.length() > getResources().getInteger(R.integer.max_msg_len)) {
+            String answer = String.format(getString(R.string.msg_len_overflow), getResources().getInteger(R.integer.max_msg_len));
+            Toast.makeText(this, answer, Toast.LENGTH_LONG).show();
+            return;
         }
+        imageManager.updateEncode(text, cryptoManager);
     }
 
     public void onDecodeBtnClick(View view) {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
-        startActivityForResult(intent, R.integer.select_encoded_photo);
+        startActivityForResult(intent, getResources().getInteger(R.integer.select_encoded_photo_case));
     }
 
     public void onSendBtnClick(View view) {
-        if (imageUri == null) {
+        if (imageManager.getImageUri() == null) {
             return;
         }
+
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, imageUri);
+        intent.putExtra(Intent.EXTRA_STREAM, imageManager.getImageUri());
         startActivity(Intent.createChooser(intent, "Send to"));
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_layout, menu);
+        return true;
+    }
+
+
+    // TODO Make here a dispatcher
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        switch (requestCode) {
-            case R.integer.select_encoded_photo:
-                if (resultCode == RESULT_OK) {
-                    if (intent == null) {
-                        MessagingUtils.debugError("ACT_RESULT", "Null intent %d %d", requestCode, resultCode);
-                        return;
-                    }
-                    Uri uri = intent.getData();// Get intent
-                    Bitmap bitmap = ConversionUtils.getUriBitmap(this, uri, 800);
-                    if (bitmap != null) {
-                        imageView.setImageBitmap(bitmap);
-                        imageUri = uri;
-                        Toast.makeText(this, ConversionUtils.decodeQR(bitmap), Toast.LENGTH_LONG).show();
-                    }
-                }
-                break;
-            default:
-                MessagingUtils.debugError("ACT_RESULT", "Wrong requestCode %d %d", requestCode, resultCode);
+        if (resultCode != RESULT_OK || intent == null) {
+            return;
         }
+        Uri uri = intent.getData();
+        Bitmap bitmap = ConversionUtils.getUriBitmap(this, uri, 800);
+        if (requestCode == getResources().getInteger(R.integer.select_encoded_photo_case)) {
+            imageManager.updateDecode(bitmap, uri, cryptoManager);
+            Toast.makeText(this, imageManager.getRawText(), Toast.LENGTH_LONG).show();
+        } else if (requestCode == getResources().getInteger(R.integer.select_public_key_case)) {
+            imageManager.update(bitmap, uri);
+            cryptoManager.updateEncryptCipher(cryptoManager.getKeyFrom(imageManager.getRawText()));
+        } else {
+            MessagingUtils.debugError("ACT_RESULT", "Wrong requestCode %d %d", requestCode, resultCode);
+        }
+    }
+
+    public void onUseKeyBtnClick(MenuItem item) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, getResources().getInteger(R.integer.select_public_key_case));
+    }
+
+    public void onGenKeyBtnClick(MenuItem item) {
+        PublicKey key = cryptoManager.updateDecryptCipher();
+        String keyReplica = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
+        imageManager.update(ConversionUtils.encodeQR(keyReplica), null);
     }
 }

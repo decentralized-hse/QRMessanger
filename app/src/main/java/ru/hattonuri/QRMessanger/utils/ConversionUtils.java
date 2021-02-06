@@ -1,5 +1,7 @@
 package ru.hattonuri.QRMessanger.utils;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -55,7 +57,8 @@ public class ConversionUtils {
         }
     }
 
-    public static Uri getImageUri(Context inContext, Bitmap inImage) {
+    public static Uri getImageUri(Activity inContext, Bitmap inImage) {
+        PermissionsUtils.verifyPermission(inContext, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
@@ -68,7 +71,7 @@ public class ConversionUtils {
         }
         MultiFormatWriter writer = new MultiFormatWriter();
         try {
-            BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, 500, 500);
+            BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, 800, 800);
             BarcodeEncoder encoder = new BarcodeEncoder();
             return encoder.createBitmap(bitMatrix);
         } catch (Exception e) {
