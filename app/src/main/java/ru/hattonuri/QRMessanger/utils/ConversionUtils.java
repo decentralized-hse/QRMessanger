@@ -58,7 +58,7 @@ public class ConversionUtils {
     }
 
     public static Uri getImageUri(Activity inContext, Bitmap inImage) {
-        PermissionsUtils.verifyPermission(inContext, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        PermissionsUtils.verifyPermissions(inContext, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE});
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);

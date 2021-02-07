@@ -1,6 +1,7 @@
 package ru.hattonuri.QRMessanger;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,6 +22,7 @@ import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 import ru.hattonuri.QRMessanger.utils.MessagingUtils;
+import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
     private EditText editText;
@@ -93,6 +96,18 @@ public class LaunchActivity extends AppCompatActivity {
             cryptoManager.updateEncryptCipher(cryptoManager.getKeyFrom(imageManager.getRawText()));
         } else {
             MessagingUtils.debugError("ACT_RESULT", "Wrong requestCode %d %d", requestCode, resultCode);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean granted = true;
+        for (int i : grantResults) {
+            granted = granted && i == PackageManager.PERMISSION_GRANTED;
+        }
+        if (!granted) {
+            PermissionsUtils.verifyPermissions(this, permissions);
         }
     }
 
