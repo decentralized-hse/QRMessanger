@@ -3,7 +3,7 @@
     <string name="btn_encode_label">Encode</string>
     <string name="btn_send_label">Send</string>
     <string name="btn_decode_label">Decode</string>
-    <string name="btn_use_key_label">Use as send key</string>
+    <string name="btn_use_key_label">Select send key</string>
     <string name="btn_gen_key">Generate RSA key</string>
 
     <string name="msg_len_overflow">You can\'t encode more than %d symbols</string>

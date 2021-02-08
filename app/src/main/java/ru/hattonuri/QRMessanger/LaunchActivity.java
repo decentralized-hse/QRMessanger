@@ -2,8 +2,6 @@ package ru.hattonuri.QRMessanger;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.Menu;
@@ -18,21 +16,24 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.security.PublicKey;
 
+import lombok.Getter;
+import ru.hattonuri.QRMessanger.managers.ActivityResultDispatcher;
 import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
-import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
-    private EditText editText;
-    private ImageManager imageManager;
-    private CryptoManager cryptoManager;
+    @Getter private EditText editText;
+    @Getter private ImageManager imageManager;
+    @Getter private CryptoManager cryptoManager;
+    @Getter private ActivityResultDispatcher activityResultDispatcher;
 
     private void setContents() {
         editText = findViewById(R.id.message_edit_text);
         imageManager = new ImageManager(findViewById(R.id.imageView));
         cryptoManager = new CryptoManager();
+        activityResultDispatcher = new ActivityResultDispatcher(this);
     }
 
     @Override
@@ -77,26 +78,11 @@ public class LaunchActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_layout, menu);
         return true;
     }
-
-
-    // TODO Make here a dispatcher
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if (resultCode != RESULT_OK || intent == null) {
-            return;
-        }
-        Uri uri = intent.getData();
-        Bitmap bitmap = ConversionUtils.getUriBitmap(this, uri, 800);
-        if (requestCode == getResources().getInteger(R.integer.select_encoded_photo_case)) {
-            imageManager.updateDecode(bitmap, uri, cryptoManager);
-            Toast.makeText(this, imageManager.getRawText(), Toast.LENGTH_LONG).show();
-        } else if (requestCode == getResources().getInteger(R.integer.select_public_key_case)) {
-            imageManager.update(bitmap, uri);
-            cryptoManager.updateEncryptCipher(cryptoManager.getKeyFrom(imageManager.getRawText()));
-        } else {
-            MessagingUtils.debugError("ACT_RESULT", "Wrong requestCode %d %d", requestCode, resultCode);
-        }
+        activityResultDispatcher.dispatch(requestCode, resultCode, intent);
     }
 
     @Override
