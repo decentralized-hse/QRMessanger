@@ -15,14 +15,11 @@ import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 public class ImageManager {
     // rawText - always decoded
     // shownText - if image encoded - text is encoded
-    @Getter
-    private String shownText = "";
-    @Getter
-    private String rawText = "";
+    @Getter private String shownText = "";
+    @Getter private String rawText = "";
     private final ImageView imageView;
 
-    @Getter
-    private Uri imageUri;
+    @Getter private Uri imageUri;
 
     public ImageManager(ImageView imageView) {
         this.imageView = imageView;

@@ -1,6 +1,6 @@
 package ru.hattonuri.QRMessanger.managers;
 
-import android.content.Context;
+import android.os.Bundle;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
@@ -14,25 +14,22 @@ import javax.crypto.Cipher;
 import lombok.Getter;
 import lombok.Setter;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
+import ru.hattonuri.QRMessanger.interfaces.SavingState;
 import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
-public class CryptoManager {
+public class CryptoManager implements SavingState {
     @Getter private final String algorithm = KeyProperties.KEY_ALGORITHM_RSA;
     @Getter private final Integer keyLength = 2048;
 
     @Getter @Setter
     private ContactsBook contacts;
 
-    private final String saveFileName = "contacts.json";
-    private final Context context;
-
     private Cipher encryptCipher;
     private Cipher decryptCipher;
 
     private KeyPairGenerator keyPairGenerator;
 
-    public CryptoManager(Context context) {
-        this.context = context;
+    public CryptoManager() {
         try {
             encryptCipher = Cipher.getInstance(algorithm);
             decryptCipher = Cipher.getInstance(algorithm);
@@ -41,14 +38,12 @@ public class CryptoManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        loadState();
     }
 
     public void updateEncryptCipher(String name, PublicKey key) {
         try {
             encryptCipher.init(Cipher.ENCRYPT_MODE, key);
             contacts.getUsers().put(name, key);
-            saveState();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
@@ -59,7 +54,6 @@ public class CryptoManager {
         try {
             decryptCipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
             contacts.setPrivateKey(keyPair.getPrivate());
-            saveState();
             return keyPair.getPublic();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
@@ -92,11 +86,13 @@ public class CryptoManager {
         return null;
     }
 
-    public void saveState() {
-        SaveUtils.save(context, contacts, null, saveFileName);
+    @Override
+    public void saveState(Bundle bundle) {
+        SaveUtils.saveToBundle(bundle, contacts, "contacts");
     }
 
-    public void loadState() {
-        contacts = SaveUtils.load(context, ContactsBook.class, null, saveFileName);
+    @Override
+    public void loadState(Bundle bundle) {
+        contacts = SaveUtils.loadFromBundle(bundle, "name", contacts.getClass());
     }
 }

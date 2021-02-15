@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
+import ru.hattonuri.QRMessanger.RequireInputDialog;
 import ru.hattonuri.QRMessanger.annotations.ActivityReaction;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 
@@ -32,6 +33,7 @@ public class ActivityResultDispatcher {
                 try {
                     method.invoke(this, intent);
                 } catch (Exception ignored) {
+
                 }
             }
         }
@@ -50,7 +52,7 @@ public class ActivityResultDispatcher {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
-        //TODO Ask for name of key
-        activity.getCryptoManager().updateEncryptCipher("", ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
+        RequireInputDialog.makeDialog(activity, input ->
+                activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText())));
     }
 }
