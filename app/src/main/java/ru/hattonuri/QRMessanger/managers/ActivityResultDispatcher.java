@@ -22,14 +22,10 @@ public class ActivityResultDispatcher {
         this.activity = activity;
     }
 
-
-
-    int zxc, ttt;
     public void dispatch(int requestCode, int resultCode, @Nullable Intent intent) {
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        zxc = requestCode; ttt = activity.getResources().getInteger(R.integer.select_public_key_case);
         for (Method method : this.getClass().getDeclaredMethods()) {
             ActivityReaction annotation = method.getAnnotation(ActivityReaction.class);
             if (annotation != null && activity.getResources().getInteger(annotation.requestCodeId()) == requestCode) {
@@ -54,6 +50,7 @@ public class ActivityResultDispatcher {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
-        activity.getCryptoManager().updateEncryptCipher(activity.getCryptoManager().getKeyFrom(activity.getImageManager().getRawText()));
+        //TODO Ask for name of key
+        activity.getCryptoManager().updateEncryptCipher("", ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
     }
 }

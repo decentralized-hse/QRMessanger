@@ -3,7 +3,6 @@ package ru.hattonuri.QRMessanger;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,8 +31,8 @@ public class LaunchActivity extends AppCompatActivity {
     private void setContents() {
         editText = findViewById(R.id.message_edit_text);
         imageManager = new ImageManager(findViewById(R.id.imageView));
-        cryptoManager = new CryptoManager();
         activityResultDispatcher = new ActivityResultDispatcher(this);
+        cryptoManager = new CryptoManager(this);
     }
 
     @Override
@@ -105,7 +104,11 @@ public class LaunchActivity extends AppCompatActivity {
 
     public void onGenKeyBtnClick(MenuItem item) {
         PublicKey key = cryptoManager.updateDecryptCipher();
-        String keyReplica = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
+        String keyReplica = ConversionUtils.parseKey(key);
         imageManager.update(ConversionUtils.encodeQR(keyReplica), null);
+    }
+
+    public void onResetSendKeyBtnClick(MenuItem item) {
+        cryptoManager.updateEncryptCipher("", null);
     }
 }

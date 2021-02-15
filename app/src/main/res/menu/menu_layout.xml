@@ -3,12 +3,17 @@
     android:layout_height="50dp" android:layout_width="50dp">
     <item
         android:id="@+id/btn_use_key_label"
-        android:orderInCategory="1"
+        android:orderInCategory="2"
         android:onClick="onUseKeyBtnClick"
         android:title="@string/btn_use_key_label" />
     <item
         android:id="@+id/btn_gen_key"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         android:onClick="onGenKeyBtnClick"
-        android:title="@string/btn_gen_key" />
+        android:title="@string/btn_gen_key_label" />
+    <item
+        android:id="@+id/btn_reset_send"
+        android:orderInCategory="4"
+        android:onClick="onResetSendKeyBtnClick"
+        android:title="@string/btn_reset_send_key_label" />
 </menu>

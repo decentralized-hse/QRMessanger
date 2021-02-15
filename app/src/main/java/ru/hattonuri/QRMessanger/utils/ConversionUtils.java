@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Base64;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -22,6 +23,12 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 public class ConversionUtils {
     public static Uri getUri(Context context, int resid) {
@@ -91,6 +98,37 @@ public class ConversionUtils {
         } catch (NotFoundException e) {
             e.printStackTrace();
             return "";
+        }
+    }
+
+    public static String parseKey(Key key) {
+        if (key == null) {
+            return null;
+        }
+        return Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
+    }
+
+    public static PublicKey getPublicKey(String data) {
+        if (data == null) {
+            return null;
+        }
+        try {
+            return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.decode(data.getBytes(), Base64.DEFAULT)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static PrivateKey getPrivateKey(String data) {
+        if (data == null) {
+            return null;
+        }
+        try {
+            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(Base64.decode(data.getBytes(), Base64.DEFAULT)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
