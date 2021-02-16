@@ -35,6 +35,7 @@ public class CryptoManager implements SavingState {
             decryptCipher = Cipher.getInstance(algorithm);
             keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
             keyPairGenerator.initialize(keyLength);
+            contacts = new ContactsBook();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,7 +63,7 @@ public class CryptoManager implements SavingState {
     }
 
     public String encrypt(String data) {
-        if (contacts.getActiveReceiver() == null) {
+        if (contacts.getActiveReceiverKey() == null) {
             return data;
         }
         try {

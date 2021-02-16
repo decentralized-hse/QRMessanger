@@ -7,5 +7,7 @@
     <string name="btn_gen_key_label">Generate RSA key</string>
     <string name="btn_reset_send_key_label">Choose send key</string>
 
+    <string name="dialog_input_name">Input name</string>
+
     <string name="msg_len_overflow">You can\'t encode more than %d symbols</string>
 </resources>

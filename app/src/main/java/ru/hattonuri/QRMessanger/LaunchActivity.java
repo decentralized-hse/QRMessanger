@@ -13,13 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.security.PublicKey;
-
 import lombok.Getter;
 import ru.hattonuri.QRMessanger.managers.ActivityResultDispatcher;
 import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
-import ru.hattonuri.QRMessanger.utils.ConversionUtils;
+import ru.hattonuri.QRMessanger.managers.MenuManager;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
@@ -27,12 +25,14 @@ public class LaunchActivity extends AppCompatActivity {
     @Getter private ImageManager imageManager;
     @Getter private CryptoManager cryptoManager;
     @Getter private ActivityResultDispatcher activityResultDispatcher;
+    @Getter private MenuManager menuManager;
 
     private void setContents() {
         editText = findViewById(R.id.message_edit_text);
         imageManager = new ImageManager(findViewById(R.id.imageView));
         activityResultDispatcher = new ActivityResultDispatcher(this);
         cryptoManager = new CryptoManager();
+        menuManager = new MenuManager(this);
     }
 
     @Override
@@ -108,19 +108,10 @@ public class LaunchActivity extends AppCompatActivity {
         }
     }
 
-    public void onUseKeyBtnClick(MenuItem item) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, getResources().getInteger(R.integer.select_public_key_case));
-    }
-
-    public void onGenKeyBtnClick(MenuItem item) {
-        PublicKey key = cryptoManager.updateDecryptCipher();
-        String keyReplica = ConversionUtils.parseKey(key);
-        imageManager.update(ConversionUtils.encodeQR(keyReplica), null);
-    }
-
-    public void onResetSendKeyBtnClick(MenuItem item) {
-        cryptoManager.updateEncryptCipher("", null);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        menuManager.dispatch(item);
+        return true;
     }
 }

@@ -18,12 +18,11 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 
-//TODO Add serialization for users
 public class ContactsBook {
     @Getter @Setter
     private PrivateKey privateKey;
     @Getter @Setter
-    private PublicKey activeReceiver;
+    private PublicKey activeReceiverKey;
 
     @Getter @Setter
     private Map<String, PublicKey> users = new HashMap<>();
@@ -34,7 +33,7 @@ public class ContactsBook {
             ContactsBook result = new ContactsBook();
             JsonObject jsonObject = json.getAsJsonObject();
             result.privateKey = ConversionUtils.getPrivateKey(jsonObject.get("privateKey").getAsString());
-            result.activeReceiver = ConversionUtils.getPublicKey(jsonObject.get("active").getAsString());
+            result.activeReceiverKey = ConversionUtils.getPublicKey(jsonObject.get("active").getAsString());
 
             result.users = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : jsonObject.getAsJsonObject("users").entrySet()) {
@@ -47,7 +46,7 @@ public class ContactsBook {
         public JsonElement serialize(ContactsBook src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject result = new JsonObject();
             result.addProperty("privateKey", ConversionUtils.parseKey(src.privateKey));
-            result.addProperty("active", ConversionUtils.parseKey(src.activeReceiver));
+            result.addProperty("active", ConversionUtils.parseKey(src.activeReceiverKey));
 
             JsonObject usersMap = new JsonObject();
             for (Map.Entry<String, PublicKey> entry : src.users.entrySet()) {

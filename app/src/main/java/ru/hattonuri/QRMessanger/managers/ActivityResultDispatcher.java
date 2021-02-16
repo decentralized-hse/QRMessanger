@@ -19,6 +19,7 @@ import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 
 public class ActivityResultDispatcher {
     private final LaunchActivity activity;
+
     public ActivityResultDispatcher(LaunchActivity activity) {
         this.activity = activity;
     }
@@ -47,12 +48,12 @@ public class ActivityResultDispatcher {
         Toast.makeText(activity, activity.getImageManager().getRawText(), Toast.LENGTH_LONG).show();
     }
 
-    @ActivityReaction(requestCodeId = R.integer.select_public_key_case)
-    private void onSelectPublicKey(Intent intent) {
+    @ActivityReaction(requestCodeId = R.integer.add_key_case)
+    private void onAddPublicKey(Intent intent) {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
-        RequireInputDialog.makeDialog(activity, input ->
+        RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input ->
                 activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText())));
     }
 }

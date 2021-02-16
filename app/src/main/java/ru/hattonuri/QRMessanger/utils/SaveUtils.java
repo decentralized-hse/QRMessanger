@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonSerializer;
 
 import java.io.File;
@@ -75,14 +76,19 @@ public class SaveUtils {
 
     public static <T> String toJsonString(T object) {
         try {
-            Class<? extends JsonSerializer<?>> serializer = getSerializer(object.getClass());
             Gson gson;
-            if (serializer != null) {
-                gson = new GsonBuilder().registerTypeAdapter(object.getClass(), serializer.newInstance()).create();
-            } else {
+            if (object == null) {
                 gson = new GsonBuilder().create();
+                return gson.toJson(JsonNull.INSTANCE);
+            } else {
+                Class<? extends JsonSerializer<?>> serializer = getSerializer(object.getClass());
+                if (serializer != null) {
+                    gson = new GsonBuilder().registerTypeAdapter(object.getClass(), serializer.newInstance()).create();
+                } else {
+                    gson = new GsonBuilder().create();
+                }
+                return gson.toJson(object, object.getClass());
             }
-            return gson.toJson(object, object.getClass());
         } catch (IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
             return null;
