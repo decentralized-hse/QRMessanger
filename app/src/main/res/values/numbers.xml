@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="select_encoded_photo_case">1</integer>
-    <integer name="select_public_key_case">2</integer>
+    <integer name="add_key_case">2</integer>
     <integer name="max_msg_len">200</integer>
     <integer name="pub_key_len">2048</integer>
     <item name="btn_height_percentile" format="float" type="dimen">0.09</item>

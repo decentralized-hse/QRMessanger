@@ -1,45 +1,39 @@
 package ru.hattonuri.QRMessanger.managers;
 
+import android.content.Context;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 
 import lombok.Getter;
+import lombok.Setter;
+import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
+import ru.hattonuri.QRMessanger.utils.MessagingUtils;
+import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
 public class CryptoManager {
-    @Getter
-    private final String algorithm = KeyProperties.KEY_ALGORITHM_RSA;
-    @Getter
-    private final Integer keyLength = 2048;
+    @Getter private final String algorithm = KeyProperties.KEY_ALGORITHM_RSA;
+    @Getter private final Integer keyLength = 2048;
 
-    private PrivateKey decryptKey;
-    private PublicKey encryptKey;
+    @Getter @Setter
+    private ContactsBook contacts;
 
     private Cipher encryptCipher;
     private Cipher decryptCipher;
 
     private KeyPairGenerator keyPairGenerator;
-//    private KeyStore keyStore;
-    private KeyFactory keyFactory;
 
     public CryptoManager() {
         try {
+            contacts = new ContactsBook();
             encryptCipher = Cipher.getInstance(algorithm);
             decryptCipher = Cipher.getInstance(algorithm);
-
-//            keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-//            keyStore.load(null, null);
-            keyFactory = KeyFactory.getInstance(algorithm);
             keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
             keyPairGenerator.initialize(keyLength);
         } catch (Exception e) {
@@ -47,13 +41,10 @@ public class CryptoManager {
         }
     }
 
-    public void updateEncryptCipher(PublicKey key) {
-        if (key == null) {
-            return;
-        }
+    public void updateEncryptCipher(String name, PublicKey key) {
         try {
             encryptCipher.init(Cipher.ENCRYPT_MODE, key);
-            encryptKey = key;
+            contacts.getUsers().put(name, key);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
@@ -63,7 +54,7 @@ public class CryptoManager {
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         try {
             decryptCipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-            decryptKey = keyPair.getPrivate();
+            contacts.setPrivateKey(keyPair.getPrivate());
             return keyPair.getPublic();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
@@ -72,7 +63,10 @@ public class CryptoManager {
     }
 
     public String encrypt(String data) {
-        if (encryptKey == null) {
+        if (contacts == null) {
+            MessagingUtils.debugError("WHY", "Because");
+        }
+        if (contacts.getActiveReceiverKey() == null) {
             return data;
         }
         try {
@@ -80,12 +74,12 @@ public class CryptoManager {
             return Base64.encodeToString(ar, Base64.DEFAULT);
         } catch (Exception e) {
             e.printStackTrace();
+            return data;
         }
-        return null;
     }
 
     public String decrypt(String data) {
-        if (decryptKey == null) {
+        if (contacts.getPrivateKey() == null) {
             return data;
         }
         try {
@@ -96,15 +90,29 @@ public class CryptoManager {
         return null;
     }
 
-    public PublicKey getKeyFrom(String data) {
-        if (data == null) {
-            return null;
+    public void saveState(Context context) {
+        SaveUtils.save(context, contacts, null, "contacts.json");
+    }
+
+    public void loadState(Context context) {
+        contacts = SaveUtils.load(context, ContactsBook.class, null, "contacts.json");
+//        contacts = SaveUtils.load(bundle, "name", contacts.getClass());
+        if (contacts == null) {
+            contacts = new ContactsBook();
         }
-        try {
-            return keyFactory.generatePublic(new X509EncodedKeySpec(Base64.decode(data, Base64.DEFAULT)));
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
+        if (contacts.getActiveReceiverKey() != null) {
+            try {
+                encryptCipher.init(Cipher.ENCRYPT_MODE, contacts.getActiveReceiverKey());
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
         }
-        return null;
+        if (contacts.getPrivateKey() != null) {
+            try {
+                decryptCipher.init(Cipher.DECRYPT_MODE, contacts.getPrivateKey());
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

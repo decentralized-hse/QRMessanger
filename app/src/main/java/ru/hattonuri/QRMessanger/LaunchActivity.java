@@ -3,7 +3,6 @@ package ru.hattonuri.QRMessanger;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,13 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.security.PublicKey;
-
 import lombok.Getter;
 import ru.hattonuri.QRMessanger.managers.ActivityResultDispatcher;
 import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
-import ru.hattonuri.QRMessanger.utils.ConversionUtils;
+import ru.hattonuri.QRMessanger.managers.MenuManager;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
@@ -28,12 +25,14 @@ public class LaunchActivity extends AppCompatActivity {
     @Getter private ImageManager imageManager;
     @Getter private CryptoManager cryptoManager;
     @Getter private ActivityResultDispatcher activityResultDispatcher;
+    @Getter private MenuManager menuManager;
 
     private void setContents() {
         editText = findViewById(R.id.message_edit_text);
         imageManager = new ImageManager(findViewById(R.id.imageView));
-        cryptoManager = new CryptoManager();
         activityResultDispatcher = new ActivityResultDispatcher(this);
+        cryptoManager = new CryptoManager();
+        menuManager = new MenuManager(this);
     }
 
     @Override
@@ -41,6 +40,7 @@ public class LaunchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setContents();
+        cryptoManager.loadState(this);
     }
 
     public void onEncodeBtnClick(View view) {
@@ -97,15 +97,10 @@ public class LaunchActivity extends AppCompatActivity {
         }
     }
 
-    public void onUseKeyBtnClick(MenuItem item) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, getResources().getInteger(R.integer.select_public_key_case));
-    }
-
-    public void onGenKeyBtnClick(MenuItem item) {
-        PublicKey key = cryptoManager.updateDecryptCipher();
-        String keyReplica = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-        imageManager.update(ConversionUtils.encodeQR(keyReplica), null);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        menuManager.dispatch(item);
+        return true;
     }
 }
