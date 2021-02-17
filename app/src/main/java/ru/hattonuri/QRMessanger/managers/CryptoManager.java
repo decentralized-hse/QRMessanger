@@ -1,6 +1,6 @@
 package ru.hattonuri.QRMessanger.managers;
 
-import android.os.Bundle;
+import android.content.Context;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
@@ -14,10 +14,10 @@ import javax.crypto.Cipher;
 import lombok.Getter;
 import lombok.Setter;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
-import ru.hattonuri.QRMessanger.interfaces.SavingState;
+import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
-public class CryptoManager implements SavingState {
+public class CryptoManager {
     @Getter private final String algorithm = KeyProperties.KEY_ALGORITHM_RSA;
     @Getter private final Integer keyLength = 2048;
 
@@ -31,11 +31,11 @@ public class CryptoManager implements SavingState {
 
     public CryptoManager() {
         try {
+            contacts = new ContactsBook();
             encryptCipher = Cipher.getInstance(algorithm);
             decryptCipher = Cipher.getInstance(algorithm);
             keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
             keyPairGenerator.initialize(keyLength);
-            contacts = new ContactsBook();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,6 +63,9 @@ public class CryptoManager implements SavingState {
     }
 
     public String encrypt(String data) {
+        if (contacts == null) {
+            MessagingUtils.debugError("WHY", "Because");
+        }
         if (contacts.getActiveReceiverKey() == null) {
             return data;
         }
@@ -71,8 +74,8 @@ public class CryptoManager implements SavingState {
             return Base64.encodeToString(ar, Base64.DEFAULT);
         } catch (Exception e) {
             e.printStackTrace();
+            return data;
         }
-        return null;
     }
 
     public String decrypt(String data) {
@@ -87,13 +90,29 @@ public class CryptoManager implements SavingState {
         return null;
     }
 
-    @Override
-    public void saveState(Bundle bundle) {
-        SaveUtils.saveToBundle(bundle, contacts, "contacts");
+    public void saveState(Context context) {
+        SaveUtils.save(context, contacts, null, "contacts.json");
     }
 
-    @Override
-    public void loadState(Bundle bundle) {
-        contacts = SaveUtils.loadFromBundle(bundle, "name", contacts.getClass());
+    public void loadState(Context context) {
+        contacts = SaveUtils.load(context, ContactsBook.class, null, "contacts.json");
+//        contacts = SaveUtils.load(bundle, "name", contacts.getClass());
+        if (contacts == null) {
+            contacts = new ContactsBook();
+        }
+        if (contacts.getActiveReceiverKey() != null) {
+            try {
+                encryptCipher.init(Cipher.ENCRYPT_MODE, contacts.getActiveReceiverKey());
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
+        }
+        if (contacts.getPrivateKey() != null) {
+            try {
+                decryptCipher.init(Cipher.DECRYPT_MODE, contacts.getPrivateKey());
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

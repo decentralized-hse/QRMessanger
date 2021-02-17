@@ -53,7 +53,9 @@ public class ActivityResultDispatcher {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
-        RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input ->
-                activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText())));
+        RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
+            activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
+            activity.getCryptoManager().saveState(activity);
+        });
     }
 }

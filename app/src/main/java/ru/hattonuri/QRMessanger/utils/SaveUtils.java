@@ -15,6 +15,7 @@ import com.google.gson.JsonSerializer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Objects;
 
 public class SaveUtils {
     private static final String defaultPath = "saves";
@@ -28,7 +29,12 @@ public class SaveUtils {
 
     public static <T> T loadFromBundle(Bundle bundle, String name, Class<T> clazz) {
         if (bundle == null) {
-            return null;
+            try {
+                return clazz.newInstance();
+            } catch (IllegalAccessException | InstantiationException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
         return fromJsonString(bundle.getString(name), clazz);
     }
@@ -43,7 +49,7 @@ public class SaveUtils {
         File saveFile = new File(context.getExternalFilesDir(root), fileName);
         try {
             FileOutputStream output = new FileOutputStream(saveFile);
-            output.write(toJsonString(object).getBytes());
+            output.write(Objects.requireNonNull(toJsonString(object)).getBytes());
             output.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,23 +57,29 @@ public class SaveUtils {
     }
 
     public static <T> T load(Context context, Class<T> clazz, @Nullable String root, String fileName) {
-        if (!isStorageAvailable()) {
-            return null;
-        }
-        if (root == null) {
-            root = defaultPath;
-        }
-        File saveFile = new File(context.getExternalFilesDir(root), fileName);
-        if (!saveFile.exists()) {
-            return null;
-        }
         try {
-            FileInputStream input = new FileInputStream(saveFile);
-            byte[] bytes = new byte[(int) saveFile.length()];
-            if (input.read(bytes) != bytes.length) {
-                throw new Exception("Can't read that length");
+
+            if (!isStorageAvailable()) {
+                return clazz.newInstance();
             }
-            return fromJsonString(new String(bytes), clazz);
+            if (root == null) {
+                root = defaultPath;
+            }
+            File saveFile = new File(context.getExternalFilesDir(root), fileName);
+            if (!saveFile.exists()) {
+                return clazz.newInstance();
+            }
+            try {
+                FileInputStream input = new FileInputStream(saveFile);
+                byte[] bytes = new byte[(int) saveFile.length()];
+                if (input.read(bytes) != bytes.length) {
+                    throw new Exception("Can't read that length");
+                }
+                return fromJsonString(new String(bytes), clazz);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return clazz.newInstance();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;

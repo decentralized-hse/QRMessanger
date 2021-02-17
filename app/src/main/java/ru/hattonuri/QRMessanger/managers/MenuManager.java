@@ -3,7 +3,6 @@ package ru.hattonuri.QRMessanger.managers;
 import android.content.Intent;
 import android.view.MenuItem;
 import android.view.SubMenu;
-import android.widget.Toast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -48,6 +47,7 @@ public class MenuManager {
         PublicKey key = activity.getCryptoManager().updateDecryptCipher();
         String keyReplica = ConversionUtils.parseKey(key);
         activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
+        activity.getCryptoManager().saveState(activity);
     }
 
     @MenuButton(id = R.id.btn_choose_key)
@@ -59,6 +59,7 @@ public class MenuManager {
                 activity.getCryptoManager().getContacts().setActiveReceiverKey(
                         activity.getCryptoManager().getContacts().getUsers().get(name)
                 );
+                activity.getCryptoManager().saveState(activity);
                 return true;
             });
             final MenuItem removeItem = itemMenu.add(R.string.msg_remove);
@@ -70,11 +71,14 @@ public class MenuManager {
                 contacts.getUsers().remove(name);
 
                 item.getSubMenu().removeItem(removeItem.getItemId());
+                activity.getCryptoManager().saveState(activity);
                 return true;
             });
         }
-        if (item.getSubMenu().size() == 0) {
-            Toast.makeText(activity, R.string.contacts_empty, Toast.LENGTH_SHORT).show();
-        }
+        item.getSubMenu().add(R.string.btn_reset_key).setOnMenuItemClickListener(item12 -> {
+            activity.getCryptoManager().getContacts().setActiveReceiverKey(null);
+            activity.getCryptoManager().saveState(activity);
+            return true;
+        });
     }
 }
