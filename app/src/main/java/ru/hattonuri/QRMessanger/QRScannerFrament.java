@@ -27,8 +27,13 @@ public class QRScannerFrament extends Fragment {
         View root = inflater.inflate(R.layout.layout_qrscanner, container, false);
         CodeScannerView scannerView = root.findViewById(R.id.scanner_view);
         mCodeScanner = new CodeScanner(activity, scannerView);
-        mCodeScanner.setDecodeCallback(result -> onDecode.run(result.getText()));
-        scannerView.setOnClickListener(view -> mCodeScanner.startPreview());
+        QRScannerFrament scannerFrament = this;
+        mCodeScanner.setDecodeCallback(result -> activity.runOnUiThread(() -> {
+            // TODO Make normal call for remove)
+            ((LaunchActivity) activity).getSupportFragmentManager().beginTransaction().remove(scannerFrament).commit();
+            mCodeScanner.releaseResources();
+            onDecode.run(result.getText());
+        }));
         return root;
     }
 

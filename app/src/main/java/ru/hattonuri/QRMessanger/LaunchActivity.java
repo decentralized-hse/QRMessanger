@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import lombok.Getter;
+import ru.hattonuri.QRMessanger.managers.ActiveReceiverManager;
 import ru.hattonuri.QRMessanger.managers.ActivityResultDispatcher;
 import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
@@ -21,6 +22,7 @@ import ru.hattonuri.QRMessanger.managers.MenuManager;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
+    @Getter private ActiveReceiverManager activeReceiverManager;
     @Getter private EditText editText;
     @Getter private ImageManager imageManager;
     @Getter private CryptoManager cryptoManager;
@@ -28,6 +30,7 @@ public class LaunchActivity extends AppCompatActivity {
     @Getter private MenuManager menuManager;
 
     private void setContents() {
+        activeReceiverManager = new ActiveReceiverManager(this, findViewById(R.id.active_receiver_label));
         editText = findViewById(R.id.message_edit_text);
         imageManager = new ImageManager(findViewById(R.id.imageView));
         activityResultDispatcher = new ActivityResultDispatcher(this);
@@ -41,6 +44,14 @@ public class LaunchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setContents();
         cryptoManager.loadState(this);
+        activeReceiverManager.update();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        cryptoManager.loadState(this);
+        activeReceiverManager.update();
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     public void onEncodeBtnClick(View view) {

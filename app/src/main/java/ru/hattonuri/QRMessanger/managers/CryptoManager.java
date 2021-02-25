@@ -14,7 +14,6 @@ import javax.crypto.Cipher;
 import lombok.Getter;
 import lombok.Setter;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
-import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
 public class CryptoManager {
@@ -50,22 +49,18 @@ public class CryptoManager {
         }
     }
 
-    public PublicKey updateDecryptCipher() {
+    public void updateDecryptCipher() {
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         try {
             decryptCipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
             contacts.setPrivateKey(keyPair.getPrivate());
-            return keyPair.getPublic();
+            contacts.setReceivingKey(keyPair.getPublic());
         } catch (InvalidKeyException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
     public String encrypt(String data) {
-        if (contacts == null) {
-            MessagingUtils.debugError("WHY", "Because");
-        }
         if (contacts.getActiveReceiverKey() == null) {
             return data;
         }
@@ -102,7 +97,7 @@ public class CryptoManager {
         }
         if (contacts.getActiveReceiverKey() != null) {
             try {
-                encryptCipher.init(Cipher.ENCRYPT_MODE, contacts.getActiveReceiverKey());
+                encryptCipher.init(Cipher.ENCRYPT_MODE, contacts.getUsers().get(contacts.getActiveReceiverKey()));
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
             }
