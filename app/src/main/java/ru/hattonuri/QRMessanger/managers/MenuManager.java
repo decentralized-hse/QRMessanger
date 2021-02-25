@@ -9,11 +9,10 @@ import androidx.fragment.app.Fragment;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.PublicKey;
 
 import lombok.NonNull;
 import ru.hattonuri.QRMessanger.LaunchActivity;
-import ru.hattonuri.QRMessanger.QRScannerFrament;
+import ru.hattonuri.QRMessanger.QRScannerFragment;
 import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.RequireInputDialog;
 import ru.hattonuri.QRMessanger.annotations.MenuButton;
@@ -89,16 +88,15 @@ public class MenuManager {
         });
     }
 
-    //TODO Add update with text
     @MenuButton(id = R.id.btn_choose_key_scan)
     public void onAddKeyFromCamera(MenuItem item) {
         PermissionsUtils.verifyPermissions(activity, new String[]{Manifest.permission.CAMERA});
-        Fragment fragment = QRScannerFrament.builder().onDecode((text) -> {
+        Fragment fragment = QRScannerFragment.builder().onDecode((text) -> {
             RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
                 activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(text));
                 activity.getCryptoManager().saveState(activity);
             });
-            activity.getImageManager().update(ConversionUtils.encodeQR(text), null);
+            activity.getImageManager().update(text);
         }).build();
         activity.getSupportFragmentManager().beginTransaction().add(R.id.main_layout, fragment).commit();
     }

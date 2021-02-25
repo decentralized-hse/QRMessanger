@@ -16,7 +16,7 @@ import lombok.Builder;
 import ru.hattonuri.QRMessanger.interfaces.InputProcess;
 
 @Builder
-public class QRScannerFrament extends Fragment {
+public class QRScannerFragment extends Fragment {
     private CodeScanner mCodeScanner;
     private final InputProcess onDecode;
 
@@ -27,10 +27,10 @@ public class QRScannerFrament extends Fragment {
         View root = inflater.inflate(R.layout.layout_qrscanner, container, false);
         CodeScannerView scannerView = root.findViewById(R.id.scanner_view);
         mCodeScanner = new CodeScanner(activity, scannerView);
-        QRScannerFrament scannerFrament = this;
+        QRScannerFragment scannerFragment = this;
         mCodeScanner.setDecodeCallback(result -> activity.runOnUiThread(() -> {
             // TODO Make normal call for remove)
-            ((LaunchActivity) activity).getSupportFragmentManager().beginTransaction().remove(scannerFrament).commit();
+            ((LaunchActivity) activity).getSupportFragmentManager().beginTransaction().remove(scannerFragment).commit();
             mCodeScanner.releaseResources();
             onDecode.run(result.getText());
         }));

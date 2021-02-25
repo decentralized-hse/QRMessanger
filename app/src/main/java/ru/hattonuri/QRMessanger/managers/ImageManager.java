@@ -17,7 +17,7 @@ public class ImageManager {
     // shownText - if image encoded - text is encoded
     @Getter private String shownText = "";
     @Getter private String rawText = "";
-    private final ImageView imageView;
+    @Getter private final ImageView imageView;
 
     @Getter private Uri imageUri;
 
@@ -39,6 +39,17 @@ public class ImageManager {
         Bitmap image = ConversionUtils.encodeQR(shownText);
         imageUri = ConversionUtils.getImageUri(getActivity(), image);
         imageView.setImageBitmap(image);
+    }
+
+    public void update(String text) {
+        if (text == null) {
+            return;
+        }
+        rawText = shownText = text;
+        Bitmap bitmap = ConversionUtils.encodeQR(text);
+        Uri uri = ConversionUtils.getImageUri(getActivity(), bitmap);
+        imageView.setImageBitmap(bitmap);
+        imageUri = uri;
     }
 
     public void update(Bitmap bitmap, @Nullable Uri uri) {
