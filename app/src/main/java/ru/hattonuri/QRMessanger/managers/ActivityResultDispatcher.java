@@ -48,11 +48,22 @@ public class ActivityResultDispatcher {
         Toast.makeText(activity, activity.getImageManager().getRawText(), Toast.LENGTH_LONG).show();
     }
 
-    @ActivityReaction(requestCodeId = R.integer.add_key_case)
-    private void onAddPublicKey(Intent intent) {
+    @ActivityReaction(requestCodeId = R.integer.add_key_gallery_case)
+    private void onAddPublicKeyGallery(Intent intent) {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
+        RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
+            activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
+            activity.getCryptoManager().saveState(activity);
+        });
+    }
+
+    @ActivityReaction(requestCodeId = R.integer.add_key_camera_case)
+    private void onAddPublicKeyCamera(Intent intent) {
+        String contents = intent.getStringExtra("SCAN_RESULT");
+        Bitmap bitmap = ConversionUtils.encodeQR(contents);
+        activity.getImageManager().update(bitmap, null);
         RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
             activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
             activity.getCryptoManager().saveState(activity);

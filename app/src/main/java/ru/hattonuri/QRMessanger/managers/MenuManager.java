@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
+import androidx.fragment.app.Fragment;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.PublicKey;
 
 import lombok.NonNull;
 import ru.hattonuri.QRMessanger.LaunchActivity;
+import ru.hattonuri.QRMessanger.QRScannerFrament;
 import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.annotations.MenuButton;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
@@ -35,11 +38,11 @@ public class MenuManager {
         }
     }
 
-    @MenuButton(id = R.id.btn_add_key)
-    public void onAddKeyBtnClick(MenuItem item) {
+    @MenuButton(id = R.id.btn_choose_key_photo)
+    public void onAddKeyFromGallery(MenuItem item) {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
-        activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_case));
+        activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_gallery_case));
     }
 
     @MenuButton(id = R.id.btn_gen_key)
@@ -51,7 +54,7 @@ public class MenuManager {
     }
 
     @MenuButton(id = R.id.btn_choose_key)
-    public void onChooseKeyBtnClick(final MenuItem item) {
+    public void onChooseKeyBtnClick(MenuItem item) {
         item.getSubMenu().clear();
         for (final String name : activity.getCryptoManager().getContacts().getUsers().keySet()) {
             SubMenu itemMenu = item.getSubMenu().addSubMenu(name);
@@ -80,5 +83,22 @@ public class MenuManager {
             activity.getCryptoManager().saveState(activity);
             return true;
         });
+    }
+
+    //TODO Add update with text
+    @MenuButton(id = R.id.btn_choose_key_scan)
+    public void onAddKeyFromCamera(MenuItem item) {
+        Fragment fragment = QRScannerFrament.builder().onDecode((text) -> activity.getImageManager().update(ConversionUtils.encodeQR(text), null)).build();
+        activity.getSupportFragmentManager().beginTransaction().
+                add(R.id.main_layout, fragment).commit();
+//        try {
+//            Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+//            intent.putExtra("SCAN_MODE", "QR_CODE_MODE"); // "PRODUCT_MODE for bar codes
+//            activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_camera_case));
+//        } catch (Exception e) {
+//            Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
+//            Intent marketIntent = new Intent(Intent.ACTION_VIEW, marketUri);
+//            activity.startActivity(marketIntent);
+//        }
     }
 }

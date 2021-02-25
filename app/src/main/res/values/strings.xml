@@ -7,6 +7,8 @@
     <string name="btn_gen_key_label">Generate RSA</string>
     <string name="btn_contacts_label">Contacts</string>
     <string name="btn_reset_key">Reset Key</string>
+    <string name="btn_choose_key_photo_label">Choose from gallery</string>
+    <string name="btn_choose_key_scan_label">Scan with camera</string>
 
     <string name="dialog_input_name">Input name</string>
 
