@@ -3,12 +3,17 @@
     <string name="btn_encode_label">Encode</string>
     <string name="btn_send_label">Send</string>
     <string name="btn_decode_label">Decode</string>
-    <string name="btn_use_key_label">Add send key</string>
+    <string name="btn_use_key_label">Add contact</string>
     <string name="btn_gen_key_label">Generate RSA</string>
     <string name="btn_contacts_label">Contacts</string>
     <string name="btn_reset_key">Reset Key</string>
+    <string name="btn_choose_key_photo_label">Choose from gallery</string>
+    <string name="btn_choose_key_scan_label">Scan with camera</string>
+    <string name="btn_show_receiving_label">Show receiving key</string>
 
     <string name="dialog_input_name">Input name</string>
+
+    <string name="active_receiver_label">Active: $receiver$</string>
 
     <string name="msg_len_overflow">You can\'t encode more than %d symbols</string>
     <string name="msg_accept">Accept</string>

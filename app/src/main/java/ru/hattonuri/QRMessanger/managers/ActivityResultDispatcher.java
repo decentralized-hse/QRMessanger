@@ -10,19 +10,16 @@ import androidx.annotation.Nullable;
 
 import java.lang.reflect.Method;
 
+import lombok.AllArgsConstructor;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.RequireInputDialog;
 import ru.hattonuri.QRMessanger.annotations.ActivityReaction;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 
-
+@AllArgsConstructor
 public class ActivityResultDispatcher {
     private final LaunchActivity activity;
-
-    public ActivityResultDispatcher(LaunchActivity activity) {
-        this.activity = activity;
-    }
 
     public void dispatch(int requestCode, int resultCode, @Nullable Intent intent) {
         if (resultCode != Activity.RESULT_OK) {
@@ -48,8 +45,8 @@ public class ActivityResultDispatcher {
         Toast.makeText(activity, activity.getImageManager().getRawText(), Toast.LENGTH_LONG).show();
     }
 
-    @ActivityReaction(requestCodeId = R.integer.add_key_case)
-    private void onAddPublicKey(Intent intent) {
+    @ActivityReaction(requestCodeId = R.integer.add_key_gallery_case)
+    private void onAddPublicKeyGallery(Intent intent) {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);

@@ -15,10 +15,10 @@
         android:layout_height="0dp"
         android:onClick="onSendBtnClick"
         android:text="@string/btn_send_label"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMinTextSize="12sp"
         app:autoSizeMaxTextSize="100sp"
+        app:autoSizeMinTextSize="12sp"
         app:autoSizeStepGranularity="30sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="@dimen/btn_height_percentile"
@@ -30,10 +30,10 @@
         android:layout_height="0dp"
         android:onClick="onEncodeBtnClick"
         android:text="@string/btn_encode_label"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMinTextSize="12sp"
         app:autoSizeMaxTextSize="100sp"
+        app:autoSizeMinTextSize="12sp"
         app:autoSizeStepGranularity="30sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/send_btn"
         app:layout_constraintHeight_percent="@dimen/btn_height_percentile"
         app:layout_constraintHorizontal_weight="1"
@@ -47,10 +47,10 @@
         android:layout_height="0dp"
         android:onClick="onDecodeBtnClick"
         android:text="@string/btn_decode_label"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMinTextSize="12sp"
         app:autoSizeMaxTextSize="100sp"
+        app:autoSizeMinTextSize="12sp"
         app:autoSizeStepGranularity="30sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/send_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="@dimen/btn_height_percentile"
@@ -62,12 +62,12 @@
         android:id="@+id/message_edit_text"
         android:layout_width="match_parent"
         android:layout_height="76dp"
+        android:autofillHints=""
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
         app:layout_constraintBottom_toTopOf="@+id/encode_btn"
-        tools:layout_editor_absoluteX="7dp"
-        android:autofillHints="" />
+        tools:layout_editor_absoluteX="7dp" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -78,4 +78,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="?attr/actionBarItemBackground" />
+
+    <TextView
+        android:id="@+id/active_receiver_label"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text=""
+        android:textAlignment="center"
+        app:autoSizeMaxTextSize="40sp"
+        app:autoSizeMinTextSize="10sp"
+        app:autoSizeStepGranularity="10sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/message_edit_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintVertical_bias="0.42" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
