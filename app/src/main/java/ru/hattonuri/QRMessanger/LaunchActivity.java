@@ -84,6 +84,13 @@ public class LaunchActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(intent, "Send to"));
     }
 
+    public void setContentsVisibility(int visibility) {
+        findViewById(R.id.encode_btn).setVisibility(visibility);
+        findViewById(R.id.decode_btn).setVisibility(visibility);
+        findViewById(R.id.send_btn).setVisibility(visibility);
+        findViewById(R.id.message_edit_text).setVisibility(visibility);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_layout, menu);

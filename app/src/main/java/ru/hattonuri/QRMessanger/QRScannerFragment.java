@@ -1,6 +1,5 @@
 package ru.hattonuri.QRMessanger;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +22,8 @@ public class QRScannerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Activity activity = getActivity();
+        LaunchActivity activity = (LaunchActivity) getActivity();
+        activity.setContentsVisibility(View.INVISIBLE);
         View root = inflater.inflate(R.layout.layout_qrscanner, container, false);
         CodeScannerView scannerView = root.findViewById(R.id.scanner_view);
         mCodeScanner = new CodeScanner(activity, scannerView);
@@ -32,6 +32,7 @@ public class QRScannerFragment extends Fragment {
             // TODO Make normal call for remove)
             ((LaunchActivity) activity).getSupportFragmentManager().beginTransaction().remove(scannerFragment).commit();
             mCodeScanner.releaseResources();
+            activity.setContentsVisibility(View.VISIBLE);
             onDecode.run(result.getText());
         }));
         return root;
