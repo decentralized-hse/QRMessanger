@@ -53,6 +53,6 @@ public class ActivityResultDispatcher {
         RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
             activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
             activity.getCryptoManager().saveState(activity);
-        });
+        }, null);
     }
 }

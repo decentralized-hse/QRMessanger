@@ -17,7 +17,8 @@ import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
 public class CryptoManager {
-    @Getter private final String algorithm = KeyProperties.KEY_ALGORITHM_RSA;
+    @Getter
+    private static final String algorithm = KeyProperties.KEY_ALGORITHM_RSA;
     @Getter private final Integer keyLength = 2048;
 
     @Getter @Setter
@@ -91,7 +92,6 @@ public class CryptoManager {
 
     public void loadState(Context context) {
         contacts = SaveUtils.load(context, ContactsBook.class, null, "contacts.json");
-//        contacts = SaveUtils.load(bundle, "name", contacts.getClass());
         if (contacts == null) {
             contacts = new ContactsBook();
         }

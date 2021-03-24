@@ -19,4 +19,7 @@
     <string name="msg_accept">Accept</string>
     <string name="msg_remove">Remove</string>
     <string name="msg_contacts_empty">Contacts list is empty</string>
+    <string name="title_activity_share">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

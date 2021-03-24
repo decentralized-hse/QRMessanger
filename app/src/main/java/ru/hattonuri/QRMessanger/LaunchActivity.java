@@ -32,7 +32,7 @@ public class LaunchActivity extends AppCompatActivity {
     private void setContents() {
         activeReceiverManager = new ActiveReceiverManager(this, findViewById(R.id.active_receiver_label));
         editText = findViewById(R.id.message_edit_text);
-        imageManager = new ImageManager(findViewById(R.id.imageView));
+        imageManager = new ImageManager(findViewById(R.id.imageShareView));
         activityResultDispatcher = new ActivityResultDispatcher(this);
         cryptoManager = new CryptoManager();
         menuManager = new MenuManager(this);
@@ -120,5 +120,13 @@ public class LaunchActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         menuManager.dispatch(item);
         return true;
+    }
+
+    public void onImageClick(View view) {
+        Intent intent = new Intent(this, ShareActivity.class);
+        Bundle b = new Bundle();
+        b.putString("image", imageManager.getImageUri().toString());
+        intent.putExtras(b);
+        startActivity(intent);
     }
 }

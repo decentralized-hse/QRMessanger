@@ -95,7 +95,7 @@ public class MenuManager {
             RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
                 activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(text));
                 activity.getCryptoManager().saveState(activity);
-            });
+            }, null);
             activity.getImageManager().update(text);
         }).build();
         activity.getSupportFragmentManager().beginTransaction().add(R.id.main_layout, fragment).commit();

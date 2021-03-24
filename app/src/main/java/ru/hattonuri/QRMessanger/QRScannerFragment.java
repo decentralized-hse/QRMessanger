@@ -30,7 +30,7 @@ public class QRScannerFragment extends Fragment {
         QRScannerFragment scannerFragment = this;
         mCodeScanner.setDecodeCallback(result -> activity.runOnUiThread(() -> {
             // TODO Make normal call for remove)
-            ((LaunchActivity) activity).getSupportFragmentManager().beginTransaction().remove(scannerFragment).commit();
+            activity.getSupportFragmentManager().beginTransaction().remove(scannerFragment).commit();
             mCodeScanner.releaseResources();
             activity.setContentsVisibility(View.VISIBLE);
             onDecode.run(result.getText());

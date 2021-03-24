@@ -70,9 +70,10 @@
         tools:layout_editor_absoluteX="7dp" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageShareView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="onImageClick"
         app:layout_constraintBottom_toTopOf="@+id/message_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -92,7 +93,7 @@
         app:layout_constraintBottom_toTopOf="@+id/message_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/imageShareView"
         app:layout_constraintVertical_bias="0.42" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
