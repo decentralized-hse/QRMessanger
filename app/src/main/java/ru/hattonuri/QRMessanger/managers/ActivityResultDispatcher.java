@@ -9,12 +9,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.RequireInputDialog;
 import ru.hattonuri.QRMessanger.annotations.ActivityReaction;
+import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 
 @AllArgsConstructor
@@ -42,7 +44,12 @@ public class ActivityResultDispatcher {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().updateDecode(bitmap, uri, activity.getCryptoManager());
-        Toast.makeText(activity, activity.getImageManager().getRawText(), Toast.LENGTH_LONG).show();
+        String decoded = activity.getImageManager().getRawText();
+        Toast.makeText(activity, decoded, Toast.LENGTH_LONG).show();
+        String receiver = activity.getCryptoManager().getContacts().getActiveReceiverKey();
+        if (receiver != null) {
+            HistoryManager.getInstance().addMessage(new Message(new Date(System.currentTimeMillis()), receiver, decoded, true));
+        }
     }
 
     @ActivityReaction(requestCodeId = R.integer.add_key_gallery_case)

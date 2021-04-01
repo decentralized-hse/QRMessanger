@@ -13,17 +13,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Date;
+
+import io.realm.Realm;
 import lombok.Getter;
+import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.managers.ActiveReceiverManager;
 import ru.hattonuri.QRMessanger.managers.ActivityResultDispatcher;
 import ru.hattonuri.QRMessanger.managers.CryptoManager;
+import ru.hattonuri.QRMessanger.managers.HistoryManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.managers.MenuManager;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
-    @Getter private ActiveReceiverManager activeReceiverManager;
     @Getter private EditText editText;
+
+    @Getter private ActiveReceiverManager activeReceiverManager;
     @Getter private ImageManager imageManager;
     @Getter private CryptoManager cryptoManager;
     @Getter private ActivityResultDispatcher activityResultDispatcher;
@@ -42,6 +48,7 @@ public class LaunchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Realm.init(this);
         setContents();
         cryptoManager.loadState(this);
         activeReceiverManager.update();
@@ -65,6 +72,14 @@ public class LaunchActivity extends AppCompatActivity {
             return;
         }
         imageManager.updateEncode(text, cryptoManager);
+        editText.setText("");
+        if (cryptoManager.getContacts().getActiveReceiverKey() != null) {
+            HistoryManager.getInstance().addMessage(new Message(
+                    new Date(System.currentTimeMillis()),
+                    cryptoManager.getContacts().getActiveReceiverKey(),
+                    text,
+                    false));
+        }
     }
 
     public void onDecodeBtnClick(View view) {
@@ -122,7 +137,7 @@ public class LaunchActivity extends AppCompatActivity {
         return true;
     }
 
-    public void onImageClick(View view) {
+    public void onCodeFullScreenClick(View view) {
         Intent intent = new Intent(this, ShareActivity.class);
         Bundle b = new Bundle();
         b.putString("image", imageManager.getImageUri().toString());
