@@ -3,13 +3,14 @@
     <string name="btn_encode_label">Encode</string>
     <string name="btn_send_label">Send</string>
     <string name="btn_decode_label">Decode</string>
-    <string name="btn_use_key_label">Add contact</string>
-    <string name="btn_gen_key_label">Generate RSA</string>
-    <string name="btn_contacts_label">Contacts</string>
-    <string name="btn_reset_key">Reset Key</string>
-    <string name="btn_choose_key_photo_label">Choose from gallery</string>
-    <string name="btn_choose_key_scan_label">Scan with camera</string>
-    <string name="btn_show_receiving_label">Show receiving key</string>
+    <string name="menu_use_key_label">Add contact</string>
+    <string name="menu_gen_key_label">Generate RSA</string>
+    <string name="menu_contacts_label">Contacts</string>
+    <string name="btn_reset_key_label">Reset Key</string>
+    <string name="menu_choose_key_photo_label">Choose from gallery</string>
+    <string name="menu_choose_key_scan_label">Scan with camera</string>
+    <string name="menu_show_receiving_label">Show receiving key</string>
+    <string name="btn_close_history_label">Close history</string>
 
     <string name="dialog_input_name">Input name</string>
 
@@ -22,4 +23,5 @@
     <string name="title_activity_share">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="menu_history_label">Show history</string>
 </resources>

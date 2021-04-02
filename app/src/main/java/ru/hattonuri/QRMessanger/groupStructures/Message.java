@@ -1,24 +1,23 @@
 package ru.hattonuri.QRMessanger.groupStructures;
 
-import java.util.Date;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
+@AllArgsConstructor @NoArgsConstructor
 public class Message extends RealmObject {
     @PrimaryKey @Getter @Setter
-    private Date date;
+    private long date;
 
-    @PrimaryKey @Getter @Setter
+    @Getter @Setter
     private String dialer;
 
     @Getter @Setter
     private String text;
 
     @Getter @Setter
-    private boolean received = true;
+    private boolean received;
 }

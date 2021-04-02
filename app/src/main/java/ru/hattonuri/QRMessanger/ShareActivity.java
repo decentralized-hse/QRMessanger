@@ -25,7 +25,7 @@ public class ShareActivity extends AppCompatActivity {
         }
     }
 
-    public void onImageClick(View view) {
+    public void onCodeFullScreenClick(View view) {
         finish();
     }
 }

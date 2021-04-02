@@ -9,7 +9,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import ru.hattonuri.QRMessanger.LaunchActivity;
@@ -43,12 +42,12 @@ public class ActivityResultDispatcher {
     private void onSelectEncodedPhoto(Intent intent) {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
-        activity.getImageManager().updateDecode(bitmap, uri, activity.getCryptoManager());
+        activity.getImageManager().updateDecode(bitmap, uri);
         String decoded = activity.getImageManager().getRawText();
         Toast.makeText(activity, decoded, Toast.LENGTH_LONG).show();
-        String receiver = activity.getCryptoManager().getContacts().getActiveReceiverKey();
+        String receiver = CryptoManager.getInstance().getContacts().getActiveReceiverKey();
         if (receiver != null) {
-            HistoryManager.getInstance().addMessage(new Message(new Date(System.currentTimeMillis()), receiver, decoded, true));
+            HistoryManager.getInstance().addMessage(new Message(System.currentTimeMillis(), receiver, decoded, true));
         }
     }
 
@@ -58,8 +57,8 @@ public class ActivityResultDispatcher {
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
         RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
-            activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
-            activity.getCryptoManager().saveState(activity);
+            CryptoManager.getInstance().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
+            CryptoManager.getInstance().saveState(activity);
         }, null);
     }
 }

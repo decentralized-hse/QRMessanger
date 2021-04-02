@@ -25,17 +25,17 @@ public class ImageManager {
         this.imageView = imageView;
     }
 
-    public void updateDecode(Bitmap bitmap, @Nullable Uri uri, CryptoManager cryptoManager) {
+    public void updateDecode(Bitmap bitmap, @Nullable Uri uri) {
         update(bitmap, uri);
-        rawText = cryptoManager.decrypt(shownText);
+        rawText = CryptoManager.getInstance().decrypt(shownText);
     }
 
-    public void updateEncode(String text, CryptoManager cryptoManager) {
+    public void updateEncode(String text) {
         if (text == null) {
             return;
         }
         rawText = text;
-        shownText = cryptoManager.encrypt(text);
+        shownText = CryptoManager.getInstance().encrypt(text);
         Bitmap image = ConversionUtils.encodeQR(shownText);
         imageUri = ConversionUtils.getImageUri(getActivity(), image);
         imageView.setImageBitmap(image);

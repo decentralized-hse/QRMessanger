@@ -12,7 +12,7 @@ public class ActiveReceiverManager {
     private final TextView activeLabel;
 
     public void update() {
-        String receiver = activity.getCryptoManager().getContacts().getActiveReceiverKey();
+        String receiver = CryptoManager.getInstance().getContacts().getActiveReceiverKey();
         if (receiver == null) {
             receiver = "";
         }

@@ -13,8 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Date;
-
 import io.realm.Realm;
 import lombok.Getter;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
@@ -31,7 +29,7 @@ public class LaunchActivity extends AppCompatActivity {
 
     @Getter private ActiveReceiverManager activeReceiverManager;
     @Getter private ImageManager imageManager;
-    @Getter private CryptoManager cryptoManager;
+//    @Getter private CryptoManager cryptoManager;
     @Getter private ActivityResultDispatcher activityResultDispatcher;
     @Getter private MenuManager menuManager;
 
@@ -40,7 +38,7 @@ public class LaunchActivity extends AppCompatActivity {
         editText = findViewById(R.id.message_edit_text);
         imageManager = new ImageManager(findViewById(R.id.imageShareView));
         activityResultDispatcher = new ActivityResultDispatcher(this);
-        cryptoManager = new CryptoManager();
+//        cryptoManager = new CryptoManager();
         menuManager = new MenuManager(this);
     }
 
@@ -50,13 +48,13 @@ public class LaunchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Realm.init(this);
         setContents();
-        cryptoManager.loadState(this);
+        CryptoManager.getInstance().loadState(this);
         activeReceiverManager.update();
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        cryptoManager.loadState(this);
+        CryptoManager.getInstance().loadState(this);
         activeReceiverManager.update();
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -71,12 +69,12 @@ public class LaunchActivity extends AppCompatActivity {
             Toast.makeText(this, answer, Toast.LENGTH_LONG).show();
             return;
         }
-        imageManager.updateEncode(text, cryptoManager);
+        imageManager.updateEncode(text);
         editText.setText("");
-        if (cryptoManager.getContacts().getActiveReceiverKey() != null) {
+        if (CryptoManager.getInstance().getContacts().getActiveReceiverKey() != null) {
             HistoryManager.getInstance().addMessage(new Message(
-                    new Date(System.currentTimeMillis()),
-                    cryptoManager.getContacts().getActiveReceiverKey(),
+                    System.currentTimeMillis(),
+                    CryptoManager.getInstance().getContacts().getActiveReceiverKey(),
                     text,
                     false));
         }

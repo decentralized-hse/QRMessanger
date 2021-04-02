@@ -29,6 +29,9 @@ public class CryptoManager {
 
     private KeyPairGenerator keyPairGenerator;
 
+    @Getter
+    private static final CryptoManager instance = new CryptoManager();
+
     public CryptoManager() {
         try {
             contacts = new ContactsBook();
