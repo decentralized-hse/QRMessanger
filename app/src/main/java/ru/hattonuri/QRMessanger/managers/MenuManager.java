@@ -60,6 +60,7 @@ public class MenuManager {
     public void onChooseKeyBtnClick(MenuItem item) {
         item.getSubMenu().clear();
         for (final String name : CryptoManager.getInstance().getContacts().getUsers().keySet()) {
+            // Add contact
             SubMenu itemMenu = item.getSubMenu().addSubMenu(name);
             itemMenu.add(R.string.msg_accept).setOnMenuItemClickListener(item1 -> {
                 CryptoManager.getInstance().getContacts().setActiveReceiverKey(name);
@@ -67,7 +68,8 @@ public class MenuManager {
                 activity.getActiveReceiverManager().update();
                 return true;
             });
-            final MenuItem removeItem = itemMenu.add(R.string.msg_remove);
+            // Remove contact
+            MenuItem removeItem = itemMenu.add(R.string.msg_remove);
             removeItem.setOnMenuItemClickListener(v -> {
                 ContactsBook contacts = CryptoManager.getInstance().getContacts();
                 if (name.equals(contacts.getActiveReceiverKey())) {
@@ -78,6 +80,7 @@ public class MenuManager {
 
                 item.getSubMenu().removeItem(removeItem.getItemId());
                 CryptoManager.getInstance().saveState(activity);
+                HistoryManager.getInstance().removeMessages(name);
                 return true;
             });
         }

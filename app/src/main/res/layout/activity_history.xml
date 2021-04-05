@@ -21,10 +21,15 @@
         app:layout_constraintHeight_percent="@dimen/btn_height_percentile"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messages_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@id/close_history_btn"/>
+        android:clickable="false"
+        android:longClickable="true"
+        app:layout_constraintBottom_toTopOf="@id/close_history_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

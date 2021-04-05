@@ -32,7 +32,26 @@ public class HistoryManager {
         Realm.getInstance(config).executeTransactionAsync(realm -> realm.insert(message));
     }
 
+    public void removeMessage(int idx) {
+        String receiver = CryptoManager.getInstance().getContacts().getActiveReceiverKey();
+        if (receiver == null || !messages.containsKey(receiver)) {
+            return;
+        }
+        List<Message> list = messages.get(receiver);
+        Message toDelete = list.get(idx);
+        list.remove(idx);
+        Realm.getInstance(config).executeTransaction(
+                realm -> realm.where(Message.class).equalTo("date", toDelete.getDate()).findFirst().deleteFromRealm());
+    }
+
     public List<Message> getMessagesFrom(String sender) {
         return ClassUtils.getOrDefault(messages, sender, new ArrayList<>());
+    }
+
+    public void removeMessages(String sender) {
+        messages.remove(sender);
+        Realm.getInstance(config).executeTransaction(
+                realm -> realm.where(Message.class).equalTo("dialer", sender).findAll().deleteAllFromRealm()
+        );
     }
 }

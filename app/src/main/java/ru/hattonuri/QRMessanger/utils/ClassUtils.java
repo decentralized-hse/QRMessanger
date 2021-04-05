@@ -14,4 +14,10 @@ public class ClassUtils {
         V val = map.get(key);
         return (val == null ? value : val);
     }
+
+    public static <T> void setIfNotNull(T toSet, T value) {
+        if (value != null) {
+            toSet = value;
+        }
+    }
 }
