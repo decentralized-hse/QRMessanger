@@ -7,8 +7,9 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import lombok.Getter;
+import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
-import ru.hattonuri.QRMessanger.utils.ClassUtils;
+import ru.hattonuri.QRMessanger.utils.CommonUtils;
 
 public class HistoryManager {
     private final String realmName = "History";
@@ -19,19 +20,19 @@ public class HistoryManager {
     private static final HistoryManager instance = new HistoryManager();
 
     public HistoryManager() {
-        config = new RealmConfiguration.Builder().name(realmName).build();
+        config = new RealmConfiguration.Builder().name(realmName).allowQueriesOnUiThread(true).allowWritesOnUiThread(true).build();
         for (Message message : Realm.getInstance(config).where(Message.class).findAll().sort("date")) {
-            ClassUtils.putIfAbsent(messages, message.getDialer(), new ArrayList<>()).get(message.getDialer()).add(message);
+            CommonUtils.putIfAbsent(messages, message.getDialer(), new ArrayList<>()).get(message.getDialer()).add(message);
         }
     }
 
     public void addMessage(Message message) {
-        ClassUtils.putIfAbsent(messages, message.getDialer(), new ArrayList<>()).get(message.getDialer()).add(message);
+        CommonUtils.putIfAbsent(messages, message.getDialer(), new ArrayList<>()).get(message.getDialer()).add(message);
         Realm.getInstance(config).executeTransactionAsync(realm -> realm.insert(message));
     }
 
     public void removeMessage(int idx) {
-        String receiver = CryptoManager.getInstance().getContacts().getActiveReceiverKey();
+        String receiver = ContactsBook.getInstance().getActiveReceiverKey();
         if (receiver == null || !messages.containsKey(receiver)) {
             return;
         }
@@ -43,7 +44,7 @@ public class HistoryManager {
     }
 
     public List<Message> getMessagesFrom(String sender) {
-        return ClassUtils.getOrDefault(messages, sender, new ArrayList<>());
+        return CommonUtils.getOrDefault(messages, sender, new ArrayList<>());
     }
 
     public void removeMessages(String sender) {

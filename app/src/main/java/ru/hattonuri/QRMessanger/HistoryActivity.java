@@ -8,10 +8,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ru.hattonuri.QRMessanger.adapters.HistoryMessageAdapter;
-import ru.hattonuri.QRMessanger.managers.CryptoManager;
+import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.managers.HistoryManager;
 
 //TODO ADD MESSAGES DELETION
+//TODO CHECK FOR NULL RECEIVER
 public class HistoryActivity extends AppCompatActivity {
     private RecyclerView list;
 
@@ -21,8 +22,8 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         list = findViewById(R.id.messages_list);
-        String receiver = CryptoManager.getInstance().getContacts().getActiveReceiverKey();
-        HistoryMessageAdapter adapter = new HistoryMessageAdapter(HistoryManager.getInstance().getMessagesFrom(receiver));
+        String receiver = ContactsBook.getInstance().getActiveReceiverKey();
+        HistoryMessageAdapter adapter = new HistoryMessageAdapter(this, HistoryManager.getInstance().getMessagesFrom(receiver));
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(adapter);
     }

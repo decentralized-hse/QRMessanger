@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import io.realm.Realm;
 import lombok.Getter;
+import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.managers.ActiveReceiverManager;
 import ru.hattonuri.QRMessanger.managers.ActivityResultDispatcher;
@@ -29,16 +30,16 @@ public class LaunchActivity extends AppCompatActivity {
 
     @Getter private ActiveReceiverManager activeReceiverManager;
     @Getter private ImageManager imageManager;
-//    @Getter private CryptoManager cryptoManager;
     @Getter private ActivityResultDispatcher activityResultDispatcher;
     @Getter private MenuManager menuManager;
+
+    @Getter private static LaunchActivity instance;
 
     private void setContents() {
         activeReceiverManager = new ActiveReceiverManager(this, findViewById(R.id.active_receiver_label));
         editText = findViewById(R.id.message_edit_text);
         imageManager = new ImageManager(findViewById(R.id.imageShareView));
         activityResultDispatcher = new ActivityResultDispatcher(this);
-//        cryptoManager = new CryptoManager();
         menuManager = new MenuManager(this);
     }
 
@@ -47,6 +48,7 @@ public class LaunchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Realm.init(this);
+        instance = this;
         setContents();
         CryptoManager.getInstance().loadState(this);
         activeReceiverManager.update();
@@ -71,10 +73,10 @@ public class LaunchActivity extends AppCompatActivity {
         }
         imageManager.updateEncode(text);
         editText.setText("");
-        if (CryptoManager.getInstance().getContacts().getActiveReceiverKey() != null) {
+        if (ContactsBook.getInstance().getActiveReceiverKey() != null) {
             HistoryManager.getInstance().addMessage(new Message(
                     System.currentTimeMillis(),
-                    CryptoManager.getInstance().getContacts().getActiveReceiverKey(),
+                    ContactsBook.getInstance().getActiveReceiverKey(),
                     text,
                     false));
         }

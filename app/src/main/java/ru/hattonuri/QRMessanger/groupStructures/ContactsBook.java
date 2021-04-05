@@ -16,19 +16,35 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
+import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
 public class ContactsBook {
     @Getter @Setter
     private PrivateKey privateKey;
     @Getter @Setter
     private PublicKey receivingKey;
-
     @Getter @Setter
     private String activeReceiverKey;
-
     @Getter @Setter
     private Map<String, PublicKey> users = new HashMap<>();
+
+    private static ContactsBook instance;
+    public static ContactsBook getInstance() {
+        if (instance == null) {
+            instance = SaveUtils.load(LaunchActivity.getInstance(), ContactsBook.class, null, "contacts.json");
+        }
+        return instance;
+    }
+
+    public void saveState() {
+        SaveUtils.save(LaunchActivity.getInstance(), this, null, "contacts.json");
+    }
+
+    public PublicKey getDialer() {
+        return activeReceiverKey == null ? null : users.get(activeReceiverKey);
+    }
 
     public static class ContactsSerializer implements JsonDeserializer<ContactsBook>, JsonSerializer<ContactsBook> {
         @Override

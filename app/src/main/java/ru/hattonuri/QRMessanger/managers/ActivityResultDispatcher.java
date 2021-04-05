@@ -15,6 +15,7 @@ import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.RequireInputDialog;
 import ru.hattonuri.QRMessanger.annotations.ActivityReaction;
+import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 
@@ -45,7 +46,7 @@ public class ActivityResultDispatcher {
         activity.getImageManager().updateDecode(bitmap, uri);
         String decoded = activity.getImageManager().getRawText();
         Toast.makeText(activity, decoded, Toast.LENGTH_LONG).show();
-        String receiver = CryptoManager.getInstance().getContacts().getActiveReceiverKey();
+        String receiver = ContactsBook.getInstance().getActiveReceiverKey();
         if (receiver != null) {
             HistoryManager.getInstance().addMessage(new Message(System.currentTimeMillis(), receiver, decoded, true));
         }
@@ -58,7 +59,7 @@ public class ActivityResultDispatcher {
         activity.getImageManager().update(bitmap, uri);
         RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
             CryptoManager.getInstance().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
-            CryptoManager.getInstance().saveState(activity);
+            ContactsBook.getInstance().saveState();
         }, null);
     }
 }

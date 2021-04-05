@@ -41,29 +41,22 @@ public class MenuManager {
         }
     }
 
-    @MenuButton(id = R.id.menu_choose_key_photo)
-    public void onAddKeyFromGallery(MenuItem item) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_gallery_case));
-    }
-
     @MenuButton(id = R.id.menu_choose_key)
     public void onChooseKeyBtnClick(MenuItem item) {
         item.getSubMenu().clear();
-        for (final String name : CryptoManager.getInstance().getContacts().getUsers().keySet()) {
+        for (final String name : ContactsBook.getInstance().getUsers().keySet()) {
             // Add contact
             SubMenu itemMenu = item.getSubMenu().addSubMenu(name);
             itemMenu.add(R.string.msg_accept).setOnMenuItemClickListener(item1 -> {
-                CryptoManager.getInstance().getContacts().setActiveReceiverKey(name);
-                CryptoManager.getInstance().saveState(activity);
+                ContactsBook.getInstance().setActiveReceiverKey(name);
+                ContactsBook.getInstance().saveState();
                 activity.getActiveReceiverManager().update();
                 return true;
             });
             // Remove contact
             MenuItem removeItem = itemMenu.add(R.string.msg_remove);
             removeItem.setOnMenuItemClickListener(v -> {
-                ContactsBook contacts = CryptoManager.getInstance().getContacts();
+                ContactsBook contacts = ContactsBook.getInstance();
                 if (name.equals(contacts.getActiveReceiverKey())) {
                     contacts.setActiveReceiverKey(null);
                     activity.getActiveReceiverManager().update();
@@ -71,17 +64,24 @@ public class MenuManager {
                 contacts.getUsers().remove(name);
 
                 item.getSubMenu().removeItem(removeItem.getItemId());
-                CryptoManager.getInstance().saveState(activity);
+                ContactsBook.getInstance().saveState();
                 HistoryManager.getInstance().removeMessages(name);
                 return true;
             });
         }
-        item.getSubMenu().add(R.string.btn_reset_key_label).setOnMenuItemClickListener(item12 -> {
-            CryptoManager.getInstance().getContacts().setActiveReceiverKey(null);
-            CryptoManager.getInstance().saveState(activity);
+        item.getSubMenu().add(R.string.btn_reset_key_label).setOnMenuItemClickListener(item1 -> {
+            ContactsBook.getInstance().setActiveReceiverKey(null);
+            ContactsBook.getInstance().saveState();
             activity.getActiveReceiverManager().update();
             return true;
         });
+    }
+
+    @MenuButton(id = R.id.menu_choose_key_photo)
+    public void onAddKeyFromGallery(MenuItem item) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_gallery_case));
     }
 
     @MenuButton(id = R.id.menu_choose_key_scan)
@@ -90,7 +90,6 @@ public class MenuManager {
         Fragment fragment = QRScannerFragment.builder().onDecode((text) -> {
             RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
                 CryptoManager.getInstance().updateEncryptCipher(input, ConversionUtils.getPublicKey(text));
-                CryptoManager.getInstance().saveState(activity);
             }, null);
             activity.getImageManager().update(text);
         }).build();
@@ -99,13 +98,12 @@ public class MenuManager {
 
     @MenuButton(id = R.id.menu_show_receiving)
     public void onShowReceivingKey(MenuItem item) {
-        if (CryptoManager.getInstance().getContacts().getReceivingKey() == null) {
+        if (ContactsBook.getInstance().getReceivingKey() == null) {
             CryptoManager.getInstance().updateDecryptCipher();
-            String keyReplica = ConversionUtils.parseKey(CryptoManager.getInstance().getContacts().getReceivingKey());
+            String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
             activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
-            CryptoManager.getInstance().saveState(activity);
         }
-        String keyReplica = ConversionUtils.parseKey(CryptoManager.getInstance().getContacts().getReceivingKey());
+        String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
         if (keyReplica != null) {
             activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
         }

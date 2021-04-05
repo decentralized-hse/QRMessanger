@@ -16,15 +16,18 @@ import java.util.List;
 import java.util.Locale;
 
 import lombok.Getter;
+import ru.hattonuri.QRMessanger.HistoryActivity;
 import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.managers.HistoryManager;
 
 public class HistoryMessageAdapter extends RecyclerView.Adapter<HistoryMessageAdapter.MessageHolder> {
     private final List<Message> messages;
+    private final HistoryActivity activity;
 
-    public HistoryMessageAdapter(List<Message> messages) {
+    public HistoryMessageAdapter(HistoryActivity activity, List<Message> messages) {
         this.messages = messages;
+        this.activity = activity;
     }
 
     @NonNull @Override
@@ -38,7 +41,10 @@ public class HistoryMessageAdapter extends RecyclerView.Adapter<HistoryMessageAd
         DateFormat simple = new SimpleDateFormat("dd MMM HH:mm", Locale.getDefault());
         Date result = new Date(message.getDate());
 
-        holder.getDeleteMsgBtn().setOnClickListener(v -> HistoryManager.getInstance().removeMessage(position));
+        holder.getDeleteMsgBtn().setOnClickListener(v -> {
+            HistoryManager.getInstance().removeMessage(position);
+            notifyDataSetChanged();
+        });
         if (message.isReceived()) {
             holder.getLabelFrom().setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
             holder.getTextMessage().setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);

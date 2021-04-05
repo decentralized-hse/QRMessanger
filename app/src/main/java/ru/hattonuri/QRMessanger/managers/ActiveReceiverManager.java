@@ -5,6 +5,7 @@ import android.widget.TextView;
 import lombok.AllArgsConstructor;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
+import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 
 @AllArgsConstructor
 public class ActiveReceiverManager {
@@ -12,7 +13,7 @@ public class ActiveReceiverManager {
     private final TextView activeLabel;
 
     public void update() {
-        String receiver = CryptoManager.getInstance().getContacts().getActiveReceiverKey();
+        String receiver = ContactsBook.getInstance().getActiveReceiverKey();
         if (receiver == null) {
             receiver = "";
         }
