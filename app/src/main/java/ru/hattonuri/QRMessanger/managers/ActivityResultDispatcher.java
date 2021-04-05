@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import lombok.AllArgsConstructor;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
-import ru.hattonuri.QRMessanger.RequireInputDialog;
+import ru.hattonuri.QRMessanger.utils.DialogUtils;
 import ru.hattonuri.QRMessanger.annotations.ActivityReaction;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
@@ -57,7 +57,7 @@ public class ActivityResultDispatcher {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
-        RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
+        DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
             CryptoManager.getInstance().updateEncryptCipher(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
             ContactsBook.getInstance().saveState();
         }, null);

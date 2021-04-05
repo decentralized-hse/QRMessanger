@@ -17,7 +17,7 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.QRMessanger">
-        <activity android:name=".HistoryActivity"></activity>
+        <activity android:name=".HistoryActivity" />
         <activity
             android:name=".ShareActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
