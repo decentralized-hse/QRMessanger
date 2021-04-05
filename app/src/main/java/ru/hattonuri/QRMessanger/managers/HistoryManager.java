@@ -9,7 +9,6 @@ import io.realm.RealmConfiguration;
 import lombok.Getter;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.utils.ClassUtils;
-import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 
 public class HistoryManager {
     private final String realmName = "History";
@@ -23,7 +22,6 @@ public class HistoryManager {
         config = new RealmConfiguration.Builder().name(realmName).build();
         for (Message message : Realm.getInstance(config).where(Message.class).findAll().sort("date")) {
             ClassUtils.putIfAbsent(messages, message.getDialer(), new ArrayList<>()).get(message.getDialer()).add(message);
-            MessagingUtils.debugError("Msg", "%s %s", message.getDialer(), message.getText());
         }
     }
 

@@ -16,6 +16,7 @@
 
     <string name="active_receiver_label">Active: $receiver$</string>
 
+    <string name="msg_key_exists">Key already exists</string>
     <string name="msg_len_overflow">You can\'t encode more than %d symbols</string>
     <string name="msg_accept">Accept</string>
     <string name="msg_remove">Remove</string>

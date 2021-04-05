@@ -28,17 +28,12 @@
     </item>
 
     <item
-        android:id="@+id/menu_gen_key"
-        android:orderInCategory="3"
-        android:title="@string/menu_gen_key_label" />
-
-    <item
         android:id="@+id/menu_show_receiving"
         android:orderInCategory="3"
         android:title="@string/menu_show_receiving_label" />
 
     <item
         android:id="@+id/menu_history"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:title="@string/menu_history_label" />
 </menu>

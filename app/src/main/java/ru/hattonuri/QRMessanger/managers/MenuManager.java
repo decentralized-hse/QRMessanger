@@ -48,14 +48,6 @@ public class MenuManager {
         activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_gallery_case));
     }
 
-    @MenuButton(id = R.id.menu_gen_key)
-    public void onGenKeyBtnClick(MenuItem item) {
-        CryptoManager.getInstance().updateDecryptCipher();
-        String keyReplica = ConversionUtils.parseKey(CryptoManager.getInstance().getContacts().getReceivingKey());
-        activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
-        CryptoManager.getInstance().saveState(activity);
-    }
-
     @MenuButton(id = R.id.menu_choose_key)
     public void onChooseKeyBtnClick(MenuItem item) {
         item.getSubMenu().clear();
@@ -107,6 +99,12 @@ public class MenuManager {
 
     @MenuButton(id = R.id.menu_show_receiving)
     public void onShowReceivingKey(MenuItem item) {
+        if (CryptoManager.getInstance().getContacts().getReceivingKey() == null) {
+            CryptoManager.getInstance().updateDecryptCipher();
+            String keyReplica = ConversionUtils.parseKey(CryptoManager.getInstance().getContacts().getReceivingKey());
+            activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
+            CryptoManager.getInstance().saveState(activity);
+        }
         String keyReplica = ConversionUtils.parseKey(CryptoManager.getInstance().getContacts().getReceivingKey());
         if (keyReplica != null) {
             activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
