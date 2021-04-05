@@ -17,7 +17,13 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.QRMessanger">
-        <activity android:name="ru.hattonuri.QRMessanger.LaunchActivity">
+        <activity android:name=".HistoryActivity"></activity>
+        <activity
+            android:name=".ShareActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_share"
+            android:theme="@style/Theme.QRMessanger.Fullscreen" />
+        <activity android:name=".LaunchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

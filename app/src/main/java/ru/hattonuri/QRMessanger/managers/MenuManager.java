@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import lombok.NonNull;
+import ru.hattonuri.QRMessanger.HistoryActivity;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.QRScannerFragment;
 import ru.hattonuri.QRMessanger.R;
@@ -40,35 +41,22 @@ public class MenuManager {
         }
     }
 
-    @MenuButton(id = R.id.btn_choose_key_photo)
-    public void onAddKeyFromGallery(MenuItem item) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_gallery_case));
-    }
-
-    @MenuButton(id = R.id.btn_gen_key)
-    public void onGenKeyBtnClick(MenuItem item) {
-        activity.getCryptoManager().updateDecryptCipher();
-        String keyReplica = ConversionUtils.parseKey(activity.getCryptoManager().getContacts().getReceivingKey());
-        activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
-        activity.getCryptoManager().saveState(activity);
-    }
-
-    @MenuButton(id = R.id.btn_choose_key)
+    @MenuButton(id = R.id.menu_choose_key)
     public void onChooseKeyBtnClick(MenuItem item) {
         item.getSubMenu().clear();
-        for (final String name : activity.getCryptoManager().getContacts().getUsers().keySet()) {
+        for (final String name : ContactsBook.getInstance().getUsers().keySet()) {
+            // Add contact
             SubMenu itemMenu = item.getSubMenu().addSubMenu(name);
             itemMenu.add(R.string.msg_accept).setOnMenuItemClickListener(item1 -> {
-                activity.getCryptoManager().getContacts().setActiveReceiverKey(name);
-                activity.getCryptoManager().saveState(activity);
+                ContactsBook.getInstance().setActiveReceiverKey(name);
+                ContactsBook.getInstance().saveState();
                 activity.getActiveReceiverManager().update();
                 return true;
             });
-            final MenuItem removeItem = itemMenu.add(R.string.msg_remove);
+            // Remove contact
+            MenuItem removeItem = itemMenu.add(R.string.msg_remove);
             removeItem.setOnMenuItemClickListener(v -> {
-                ContactsBook contacts = activity.getCryptoManager().getContacts();
+                ContactsBook contacts = ContactsBook.getInstance();
                 if (name.equals(contacts.getActiveReceiverKey())) {
                     contacts.setActiveReceiverKey(null);
                     activity.getActiveReceiverManager().update();
@@ -76,36 +64,54 @@ public class MenuManager {
                 contacts.getUsers().remove(name);
 
                 item.getSubMenu().removeItem(removeItem.getItemId());
-                activity.getCryptoManager().saveState(activity);
+                ContactsBook.getInstance().saveState();
+                HistoryManager.getInstance().removeMessages(name);
                 return true;
             });
         }
-        item.getSubMenu().add(R.string.btn_reset_key).setOnMenuItemClickListener(item12 -> {
-            activity.getCryptoManager().getContacts().setActiveReceiverKey(null);
-            activity.getCryptoManager().saveState(activity);
+        item.getSubMenu().add(R.string.btn_reset_key_label).setOnMenuItemClickListener(item1 -> {
+            ContactsBook.getInstance().setActiveReceiverKey(null);
+            ContactsBook.getInstance().saveState();
             activity.getActiveReceiverManager().update();
             return true;
         });
     }
 
-    @MenuButton(id = R.id.btn_choose_key_scan)
+    @MenuButton(id = R.id.menu_choose_key_photo)
+    public void onAddKeyFromGallery(MenuItem item) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        activity.startActivityForResult(intent, activity.getResources().getInteger(R.integer.add_key_gallery_case));
+    }
+
+    @MenuButton(id = R.id.menu_choose_key_scan)
     public void onAddKeyFromCamera(MenuItem item) {
         PermissionsUtils.verifyPermissions(activity, new String[]{Manifest.permission.CAMERA});
         Fragment fragment = QRScannerFragment.builder().onDecode((text) -> {
             RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
-                activity.getCryptoManager().updateEncryptCipher(input, ConversionUtils.getPublicKey(text));
-                activity.getCryptoManager().saveState(activity);
-            });
+                CryptoManager.getInstance().updateEncryptCipher(input, ConversionUtils.getPublicKey(text));
+            }, null);
             activity.getImageManager().update(text);
         }).build();
         activity.getSupportFragmentManager().beginTransaction().add(R.id.main_layout, fragment).commit();
     }
 
-    @MenuButton(id = R.id.btn_show_receiving)
+    @MenuButton(id = R.id.menu_show_receiving)
     public void onShowReceivingKey(MenuItem item) {
-        String keyReplica = ConversionUtils.parseKey(activity.getCryptoManager().getContacts().getReceivingKey());
+        if (ContactsBook.getInstance().getReceivingKey() == null) {
+            CryptoManager.getInstance().updateDecryptCipher();
+            String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
+            activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
+        }
+        String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
         if (keyReplica != null) {
             activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
         }
+    }
+
+    @MenuButton(id = R.id.menu_history)
+    public void onShowHistoryKey(MenuItem item) {
+        Intent intent = new Intent(activity, HistoryActivity.class);
+        activity.startActivity(intent);
     }
 }

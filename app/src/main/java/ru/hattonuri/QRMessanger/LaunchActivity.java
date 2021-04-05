@@ -13,28 +13,33 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import io.realm.Realm;
 import lombok.Getter;
+import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
+import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.managers.ActiveReceiverManager;
 import ru.hattonuri.QRMessanger.managers.ActivityResultDispatcher;
 import ru.hattonuri.QRMessanger.managers.CryptoManager;
+import ru.hattonuri.QRMessanger.managers.HistoryManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.managers.MenuManager;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
-    @Getter private ActiveReceiverManager activeReceiverManager;
     @Getter private EditText editText;
+
+    @Getter private ActiveReceiverManager activeReceiverManager;
     @Getter private ImageManager imageManager;
-    @Getter private CryptoManager cryptoManager;
     @Getter private ActivityResultDispatcher activityResultDispatcher;
     @Getter private MenuManager menuManager;
+
+    @Getter private static LaunchActivity instance;
 
     private void setContents() {
         activeReceiverManager = new ActiveReceiverManager(this, findViewById(R.id.active_receiver_label));
         editText = findViewById(R.id.message_edit_text);
-        imageManager = new ImageManager(findViewById(R.id.imageView));
+        imageManager = new ImageManager(findViewById(R.id.imageShareView));
         activityResultDispatcher = new ActivityResultDispatcher(this);
-        cryptoManager = new CryptoManager();
         menuManager = new MenuManager(this);
     }
 
@@ -42,14 +47,16 @@ public class LaunchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Realm.init(this);
+        instance = this;
         setContents();
-        cryptoManager.loadState(this);
+        CryptoManager.getInstance().loadState(this);
         activeReceiverManager.update();
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        cryptoManager.loadState(this);
+        CryptoManager.getInstance().loadState(this);
         activeReceiverManager.update();
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -64,7 +71,15 @@ public class LaunchActivity extends AppCompatActivity {
             Toast.makeText(this, answer, Toast.LENGTH_LONG).show();
             return;
         }
-        imageManager.updateEncode(text, cryptoManager);
+        imageManager.updateEncode(text);
+        editText.setText("");
+        if (ContactsBook.getInstance().getActiveReceiverKey() != null) {
+            HistoryManager.getInstance().addMessage(new Message(
+                    System.currentTimeMillis(),
+                    ContactsBook.getInstance().getActiveReceiverKey(),
+                    text,
+                    false));
+        }
     }
 
     public void onDecodeBtnClick(View view) {
@@ -82,6 +97,13 @@ public class LaunchActivity extends AppCompatActivity {
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_STREAM, imageManager.getImageUri());
         startActivity(Intent.createChooser(intent, "Send to"));
+    }
+
+    public void setContentsVisibility(int visibility) {
+        findViewById(R.id.encode_btn).setVisibility(visibility);
+        findViewById(R.id.decode_btn).setVisibility(visibility);
+        findViewById(R.id.send_btn).setVisibility(visibility);
+        findViewById(R.id.message_edit_text).setVisibility(visibility);
     }
 
     @Override
@@ -113,5 +135,13 @@ public class LaunchActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         menuManager.dispatch(item);
         return true;
+    }
+
+    public void onCodeFullScreenClick(View view) {
+        Intent intent = new Intent(this, ShareActivity.class);
+        Bundle b = new Bundle();
+        b.putString("image", imageManager.getImageUri().toString());
+        intent.putExtras(b);
+        startActivity(intent);
     }
 }

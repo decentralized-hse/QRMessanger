@@ -30,6 +30,8 @@ import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+import ru.hattonuri.QRMessanger.managers.CryptoManager;
+
 public class ConversionUtils {
     public static Uri getUri(Context context, int resid) {
         return (new Uri.Builder())
@@ -113,7 +115,7 @@ public class ConversionUtils {
             return null;
         }
         try {
-            return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.decode(data.getBytes(), Base64.DEFAULT)));
+            return KeyFactory.getInstance(CryptoManager.getAlgorithm()).generatePublic(new X509EncodedKeySpec(Base64.decode(data.getBytes(), Base64.DEFAULT)));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -125,7 +127,7 @@ public class ConversionUtils {
             return null;
         }
         try {
-            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(Base64.decode(data.getBytes(), Base64.DEFAULT)));
+            return KeyFactory.getInstance(CryptoManager.getAlgorithm()).generatePrivate(new PKCS8EncodedKeySpec(Base64.decode(data.getBytes(), Base64.DEFAULT)));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
