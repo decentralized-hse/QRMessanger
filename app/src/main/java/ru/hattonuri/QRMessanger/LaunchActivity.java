@@ -23,6 +23,7 @@ import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.HistoryManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.managers.MenuManager;
+import ru.hattonuri.QRMessanger.utils.CommonUtils;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
@@ -50,13 +51,13 @@ public class LaunchActivity extends AppCompatActivity {
         Realm.init(this);
         instance = this;
         setContents();
-        CryptoManager.getInstance().loadState(this);
+        CryptoManager.getInstance().loadState();
         activeReceiverManager.update();
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        CryptoManager.getInstance().loadState(this);
+        CryptoManager.getInstance().loadState();
         activeReceiverManager.update();
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -71,15 +72,22 @@ public class LaunchActivity extends AppCompatActivity {
             Toast.makeText(this, answer, Toast.LENGTH_LONG).show();
             return;
         }
+        if (ContactsBook.getInstance().getActiveReceiverKey() == null) {
+            Toast.makeText(this, "Maybe choose contact?", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (ContactsBook.getInstance().getDialer().getKey() == null) {
+            Toast.makeText(this, "You haven't added key to this contact", Toast.LENGTH_LONG).show();
+            return;
+        }
+        text = new String(CommonUtils.longToBytes(ContactsBook.getInstance().getDialer().getUuid())) + text;
         imageManager.updateEncode(text);
         editText.setText("");
-        if (ContactsBook.getInstance().getActiveReceiverKey() != null) {
-            HistoryManager.getInstance().addMessage(new Message(
-                    System.currentTimeMillis(),
-                    ContactsBook.getInstance().getActiveReceiverKey(),
-                    text,
-                    false));
-        }
+        HistoryManager.getInstance().addMessage(new Message(
+                System.currentTimeMillis(),
+                ContactsBook.getInstance().getActiveReceiverKey(),
+                text,
+                false));
     }
 
     public void onDecodeBtnClick(View view) {

@@ -1,6 +1,5 @@
 package ru.hattonuri.QRMessanger.managers;
 
-import android.content.Context;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
@@ -8,14 +7,12 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 
 import lombok.Getter;
-import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
-import ru.hattonuri.QRMessanger.utils.CommonUtils;
-import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 
 public class CryptoManager {
     @Getter
@@ -44,7 +41,13 @@ public class CryptoManager {
     public void updateEncryptCipher(String name, PublicKey key) {
         try {
             encryptCipher.init(Cipher.ENCRYPT_MODE, key);
-            ContactsBook.getInstance().getUsers().put(name, key);
+            ContactsBook.User current = ContactsBook.getInstance().getUsers().get(name);
+            if (current != null) {
+                current.setKey(key);
+                ContactsBook.getInstance().getUsers().put(name, current);
+            } else {
+                ContactsBook.getInstance().getUsers().put(name, new ContactsBook.User(new Random().nextLong(), key));
+            }
             ContactsBook.getInstance().saveState();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
@@ -88,38 +91,10 @@ public class CryptoManager {
         return null;
     }
 
-//    public void saveState(Context context) {
-//        SaveUtils.save(context, ContactsBook.getInstance(), null, "contacts.json");
-//    }
-
-    public String initConversationMessage(LaunchActivity activity) {
-        if (ContactsBook.getInstance().getReceivingKey() == null) {
-            CryptoManager.getInstance().updateDecryptCipher();
-            String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
-            activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
-            ContactsBook.getInstance().saveState();
-        }
-        String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
-        if (keyReplica != null) {
-            // TODO
-            String msg = CryptoManager.getInstance().encrypt(CommonUtils.randomBase64(10) + keyReplica);
-            activity.getImageManager().update(ConversionUtils.encodeQR(msg), null);
-            return msg;
-        }
-        return null;
-    }
-
-    public void confirmConversationMessage(LaunchActivity activity, String message) {
-        message.substring(0, 10);
-        // Add contact
-        // use 3 letters
-    }
-
-    public void loadState(Context context) {
-//        ContactsBook.getInstance() = SaveUtils.load(context, ContactsBook.class, null, "contacts.json");
+    public void loadState() {
         if (ContactsBook.getInstance().getActiveReceiverKey() != null) {
             try {
-                encryptCipher.init(Cipher.ENCRYPT_MODE, ContactsBook.getInstance().getDialer());
+                encryptCipher.init(Cipher.ENCRYPT_MODE, ContactsBook.getInstance().getDialer().getKey());
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
             }

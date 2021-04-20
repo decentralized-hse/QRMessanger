@@ -4,20 +4,23 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.util.Base64;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
-import ru.hattonuri.QRMessanger.utils.DialogUtils;
 import ru.hattonuri.QRMessanger.annotations.ActivityReaction;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
+import ru.hattonuri.QRMessanger.utils.CommonUtils;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
+import ru.hattonuri.QRMessanger.utils.DialogUtils;
 
 @AllArgsConstructor
 public class ActivityResultDispatcher {
@@ -45,11 +48,24 @@ public class ActivityResultDispatcher {
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().updateDecode(bitmap, uri);
         String decoded = activity.getImageManager().getRawText();
-        Toast.makeText(activity, decoded, Toast.LENGTH_LONG).show();
-        String receiver = ContactsBook.getInstance().getActiveReceiverKey();
-        if (receiver != null) {
-            HistoryManager.getInstance().addMessage(new Message(System.currentTimeMillis(), receiver, decoded, true));
+        long uuid = CommonUtils.bytesToLong(Base64.decode(decoded.substring(0, 8), Base64.DEFAULT));
+        decoded = decoded.substring(8);
+        for (Map.Entry<String, ContactsBook.User> userEntry : ContactsBook.getInstance().getUsers().entrySet()) {
+            String name = userEntry.getKey();
+            long curUuid = userEntry.getValue().getUuid();
+            if (curUuid == uuid) {
+                Toast.makeText(activity, decoded, Toast.LENGTH_LONG).show();
+                HistoryManager.getInstance().addMessage(new Message(System.currentTimeMillis(), name, decoded, true));
+                return;
+            }
         }
+        // if user with uuid doesn't exist
+        String finalDecoded = decoded;
+        DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
+            CryptoManager.getInstance().updateEncryptCipher(input, null);
+            Toast.makeText(activity, finalDecoded, Toast.LENGTH_LONG).show();
+            HistoryManager.getInstance().addMessage(new Message(System.currentTimeMillis(), input, finalDecoded, true));
+        }, null);
     }
 
     @ActivityReaction(requestCodeId = R.integer.add_key_gallery_case)
