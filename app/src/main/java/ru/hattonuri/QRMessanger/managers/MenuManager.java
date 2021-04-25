@@ -48,7 +48,7 @@ public class MenuManager {
             // Add contact
             SubMenu itemMenu = item.getSubMenu().addSubMenu(name);
             itemMenu.add(R.string.msg_accept).setOnMenuItemClickListener(item1 -> {
-                ContactsBook.getInstance().setActiveReceiverKey(name);
+                CryptoManager.getInstance().updateEncryptCipher(name);
                 ContactsBook.getInstance().saveState();
                 activity.getActiveReceiverManager().update();
                 return true;
@@ -64,8 +64,8 @@ public class MenuManager {
                 contacts.getUsers().remove(name);
 
                 item.getSubMenu().removeItem(removeItem.getItemId());
-                ContactsBook.getInstance().saveState();
                 HistoryManager.getInstance().removeMessages(name);
+                ContactsBook.getInstance().saveState();
                 return true;
             });
         }
@@ -89,7 +89,7 @@ public class MenuManager {
         PermissionsUtils.verifyPermissions(activity, new String[]{Manifest.permission.CAMERA});
         Fragment fragment = QRScannerFragment.builder().onDecode((text) -> {
             DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
-                CryptoManager.getInstance().updateEncryptCipher(input, ConversionUtils.getPublicKey(text));
+                CryptoManager.getInstance().addContact(input, ConversionUtils.getPublicKey(text));
             }, null);
             activity.getImageManager().update(text);
         }).build();
@@ -100,8 +100,6 @@ public class MenuManager {
     public void onShowReceivingKey(MenuItem item) {
         if (ContactsBook.getInstance().getReceivingKey() == null) {
             CryptoManager.getInstance().updateDecryptCipher();
-            String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
-            activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
         }
         String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
         if (keyReplica != null) {

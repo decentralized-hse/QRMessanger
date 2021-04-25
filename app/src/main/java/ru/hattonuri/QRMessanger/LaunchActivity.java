@@ -23,7 +23,6 @@ import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.HistoryManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.managers.MenuManager;
-import ru.hattonuri.QRMessanger.utils.CommonUtils;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
@@ -80,8 +79,8 @@ public class LaunchActivity extends AppCompatActivity {
             Toast.makeText(this, "You haven't added key to this contact", Toast.LENGTH_LONG).show();
             return;
         }
-        text = new String(CommonUtils.longToBytes(ContactsBook.getInstance().getDialer().getUuid())) + text;
-        imageManager.updateEncode(text);
+        String msgText = ContactsBook.getInstance().getDialer().getUuid() + text;
+        imageManager.updateEncode(msgText);
         editText.setText("");
         HistoryManager.getInstance().addMessage(new Message(
                 System.currentTimeMillis(),

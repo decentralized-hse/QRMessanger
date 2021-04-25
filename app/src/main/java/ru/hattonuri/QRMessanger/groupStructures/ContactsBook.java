@@ -1,7 +1,5 @@
 package ru.hattonuri.QRMessanger.groupStructures;
 
-import android.util.Base64;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -22,7 +20,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.hattonuri.QRMessanger.LaunchActivity;
-import ru.hattonuri.QRMessanger.utils.CommonUtils;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
@@ -30,7 +27,7 @@ public class ContactsBook {
     @AllArgsConstructor @NoArgsConstructor
     public static class User {
         @Getter @Setter
-        private long uuid;
+        private String uuid;
         @Getter @Setter
         private PublicKey key;
     }
@@ -48,6 +45,9 @@ public class ContactsBook {
     public static ContactsBook getInstance() {
         if (instance == null) {
             instance = SaveUtils.load(LaunchActivity.getInstance(), ContactsBook.class, null, "contacts.json");
+            if (instance == null) {
+                instance = new ContactsBook();
+            }
         }
         return instance;
     }
@@ -83,9 +83,8 @@ public class ContactsBook {
             if (users != null) {
                 for (Map.Entry<String, JsonElement> entry : users.entrySet()) {
                     JsonArray ar = entry.getValue().getAsJsonArray();
-                    long uuid = CommonUtils.bytesToLong(Base64.decode(ar.get(0).getAsString(), Base64.DEFAULT));
                     PublicKey key = ConversionUtils.getPublicKey(ar.get(1).getAsString());
-                    result.users.put(entry.getKey(), new User(uuid, key));
+                    result.users.put(entry.getKey(), new User(ar.get(0).getAsString(), key));
                 }
             }
 
@@ -102,7 +101,7 @@ public class ContactsBook {
             JsonObject usersMap = new JsonObject();
             for (Map.Entry<String, User> entry : src.users.entrySet()) {
                 JsonArray array = new JsonArray(2);
-                array.add(Base64.encodeToString(CommonUtils.longToBytes(entry.getValue().uuid), Base64.DEFAULT));
+                array.add(entry.getValue().uuid);
                 array.add(ConversionUtils.parseKey(entry.getValue().key));
                 usersMap.add(entry.getKey(), array);
             }

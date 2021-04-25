@@ -49,16 +49,27 @@ public class CommonUtils {
         return num;
     }
 
-    private static final ByteBuffer buffer = ByteBuffer.allocate(4);
+    private static final ByteBuffer buffer = ByteBuffer.allocate(8);
 
     public static byte[] longToBytes(long x) {
-        buffer.putLong(0, x);
-        return buffer.array();
+        return buffer.putLong(x).array();
     }
 
     public static long bytesToLong(byte[] bytes) {
-        buffer.put(bytes, 0, bytes.length);
+        buffer.put(bytes);
         buffer.flip();
         return buffer.getLong();
+    }
+
+
+    private static final String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    public static String generateRandomString(int size) {
+        StringBuilder sb = new StringBuilder();
+        Random rnd = new Random();
+        while (size > 0) {
+            sb.append(alphabet.charAt(rnd.nextInt(alphabet.length())));
+            --size;
+        }
+        return sb.toString();
     }
 }
