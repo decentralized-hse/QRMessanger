@@ -73,9 +73,10 @@ public class ActivityResultDispatcher {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
-        DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
-            CryptoManager.getInstance().addContact(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
-            ContactsBook.getInstance().saveState();
-        }, null);
+//        DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
+//            CryptoManager.getInstance().addContact(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
+//            ContactsBook.getInstance().saveState();
+//        }, null);
+        DialogUtils.makeAddContactDialog(activity, activity.getImageManager().getRawText());
     }
 }

@@ -15,10 +15,10 @@ import ru.hattonuri.QRMessanger.HistoryActivity;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.QRScannerFragment;
 import ru.hattonuri.QRMessanger.R;
-import ru.hattonuri.QRMessanger.utils.DialogUtils;
 import ru.hattonuri.QRMessanger.annotations.MenuButton;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
+import ru.hattonuri.QRMessanger.utils.DialogUtils;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class MenuManager {
@@ -87,12 +87,7 @@ public class MenuManager {
     @MenuButton(id = R.id.menu_choose_key_scan)
     public void onAddKeyFromCamera(MenuItem item) {
         PermissionsUtils.verifyPermissions(activity, new String[]{Manifest.permission.CAMERA});
-        Fragment fragment = QRScannerFragment.builder().onDecode((text) -> {
-            DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
-                CryptoManager.getInstance().addContact(input, ConversionUtils.getPublicKey(text));
-            }, null);
-            activity.getImageManager().update(text);
-        }).build();
+        Fragment fragment = QRScannerFragment.builder().onDecode((text) -> DialogUtils.makeAddContactDialog(activity, text)).build();
         activity.getSupportFragmentManager().beginTransaction().add(R.id.main_layout, fragment).commit();
     }
 

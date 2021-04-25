@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
@@ -83,8 +84,12 @@ public class ContactsBook {
             if (users != null) {
                 for (Map.Entry<String, JsonElement> entry : users.entrySet()) {
                     JsonArray ar = entry.getValue().getAsJsonArray();
-                    PublicKey key = ConversionUtils.getPublicKey(ar.get(1).getAsString());
-                    result.users.put(entry.getKey(), new User(ar.get(0).getAsString(), key));
+                    String uuid = ar.get(0).getAsString();
+                    PublicKey key = null;
+                    if (!(ar.get(1) instanceof JsonNull)) {
+                        key = ConversionUtils.getPublicKey(ar.get(1).getAsString());
+                    }
+                    result.users.put(entry.getKey(), new User(uuid, key));
                 }
             }
 

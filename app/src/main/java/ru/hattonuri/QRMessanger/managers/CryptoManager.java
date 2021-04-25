@@ -106,7 +106,9 @@ public class CryptoManager {
     public void loadState() {
         if (ContactsBook.getInstance().getActiveReceiverKey() != null) {
             try {
-                encryptCipher.init(Cipher.ENCRYPT_MODE, ContactsBook.getInstance().getDialer().getKey());
+                if (ContactsBook.getInstance().getDialer().getKey() != null) {
+                    encryptCipher.init(Cipher.ENCRYPT_MODE, ContactsBook.getInstance().getDialer().getKey());
+                }
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
             }
