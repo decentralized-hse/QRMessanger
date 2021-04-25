@@ -15,10 +15,10 @@ import ru.hattonuri.QRMessanger.HistoryActivity;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.QRScannerFragment;
 import ru.hattonuri.QRMessanger.R;
-import ru.hattonuri.QRMessanger.RequireInputDialog;
 import ru.hattonuri.QRMessanger.annotations.MenuButton;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
+import ru.hattonuri.QRMessanger.utils.DialogUtils;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class MenuManager {
@@ -48,7 +48,7 @@ public class MenuManager {
             // Add contact
             SubMenu itemMenu = item.getSubMenu().addSubMenu(name);
             itemMenu.add(R.string.msg_accept).setOnMenuItemClickListener(item1 -> {
-                ContactsBook.getInstance().setActiveReceiverKey(name);
+                CryptoManager.getInstance().updateEncryptCipher(name);
                 ContactsBook.getInstance().saveState();
                 activity.getActiveReceiverManager().update();
                 return true;
@@ -64,8 +64,8 @@ public class MenuManager {
                 contacts.getUsers().remove(name);
 
                 item.getSubMenu().removeItem(removeItem.getItemId());
-                ContactsBook.getInstance().saveState();
                 HistoryManager.getInstance().removeMessages(name);
+                ContactsBook.getInstance().saveState();
                 return true;
             });
         }
@@ -87,12 +87,7 @@ public class MenuManager {
     @MenuButton(id = R.id.menu_choose_key_scan)
     public void onAddKeyFromCamera(MenuItem item) {
         PermissionsUtils.verifyPermissions(activity, new String[]{Manifest.permission.CAMERA});
-        Fragment fragment = QRScannerFragment.builder().onDecode((text) -> {
-            RequireInputDialog.makeDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
-                CryptoManager.getInstance().updateEncryptCipher(input, ConversionUtils.getPublicKey(text));
-            }, null);
-            activity.getImageManager().update(text);
-        }).build();
+        Fragment fragment = QRScannerFragment.builder().onDecode((text) -> DialogUtils.makeAddContactDialog(activity, text)).build();
         activity.getSupportFragmentManager().beginTransaction().add(R.id.main_layout, fragment).commit();
     }
 
@@ -100,8 +95,6 @@ public class MenuManager {
     public void onShowReceivingKey(MenuItem item) {
         if (ContactsBook.getInstance().getReceivingKey() == null) {
             CryptoManager.getInstance().updateDecryptCipher();
-            String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
-            activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
         }
         String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
         if (keyReplica != null) {

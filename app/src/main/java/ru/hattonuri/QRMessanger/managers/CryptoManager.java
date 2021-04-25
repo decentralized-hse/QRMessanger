@@ -1,6 +1,5 @@
 package ru.hattonuri.QRMessanger.managers;
 
-import android.content.Context;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
@@ -8,14 +7,16 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.Objects;
 
 import javax.crypto.Cipher;
 
 import lombok.Getter;
 import ru.hattonuri.QRMessanger.LaunchActivity;
+import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.utils.CommonUtils;
-import ru.hattonuri.QRMessanger.utils.ConversionUtils;
+import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 
 public class CryptoManager {
     @Getter
@@ -31,6 +32,7 @@ public class CryptoManager {
     private static final CryptoManager instance = new CryptoManager();
 
     public CryptoManager() {
+
         try {
             encryptCipher = Cipher.getInstance(algorithm);
             decryptCipher = Cipher.getInstance(algorithm);
@@ -41,10 +43,28 @@ public class CryptoManager {
         }
     }
 
-    public void updateEncryptCipher(String name, PublicKey key) {
+    public void addContact(String name, PublicKey key) {
+        addContact(name, key, CommonUtils.generateRandomString(LaunchActivity.getInstance().getResources().getInteger(R.integer.identity_key_len)));
+    }
+
+    public void addContact(String name, PublicKey key, String uuid) {
+        ContactsBook.User current = ContactsBook.getInstance().getUsers().get(name);
+        if (current != null) {
+            current.setKey(key);
+        } else {
+            MessagingUtils.debugError("ADD CONTACT UUID", uuid);
+            ContactsBook.getInstance().getUsers().put(name, new ContactsBook.User(uuid, key));
+        }
+        ContactsBook.getInstance().saveState();
+    }
+
+    public void updateEncryptCipher(String name) {
         try {
-            encryptCipher.init(Cipher.ENCRYPT_MODE, key);
-            ContactsBook.getInstance().getUsers().put(name, key);
+            PublicKey key = Objects.requireNonNull(ContactsBook.getInstance().getUsers().get(name)).getKey();
+            if (key != null) {
+                encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+            }
+            ContactsBook.getInstance().setActiveReceiverKey(name);
             ContactsBook.getInstance().saveState();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
@@ -88,38 +108,12 @@ public class CryptoManager {
         return null;
     }
 
-//    public void saveState(Context context) {
-//        SaveUtils.save(context, ContactsBook.getInstance(), null, "contacts.json");
-//    }
-
-    public String initConversationMessage(LaunchActivity activity) {
-        if (ContactsBook.getInstance().getReceivingKey() == null) {
-            CryptoManager.getInstance().updateDecryptCipher();
-            String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
-            activity.getImageManager().update(ConversionUtils.encodeQR(keyReplica), null);
-            ContactsBook.getInstance().saveState();
-        }
-        String keyReplica = ConversionUtils.parseKey(ContactsBook.getInstance().getReceivingKey());
-        if (keyReplica != null) {
-            // TODO
-            String msg = CryptoManager.getInstance().encrypt(CommonUtils.randomBase64(10) + keyReplica);
-            activity.getImageManager().update(ConversionUtils.encodeQR(msg), null);
-            return msg;
-        }
-        return null;
-    }
-
-    public void confirmConversationMessage(LaunchActivity activity, String message) {
-        message.substring(0, 10);
-        // Add contact
-        // use 3 letters
-    }
-
-    public void loadState(Context context) {
-//        ContactsBook.getInstance() = SaveUtils.load(context, ContactsBook.class, null, "contacts.json");
+    public void loadState() {
         if (ContactsBook.getInstance().getActiveReceiverKey() != null) {
             try {
-                encryptCipher.init(Cipher.ENCRYPT_MODE, ContactsBook.getInstance().getDialer());
+                if (ContactsBook.getInstance().getDialer().getKey() != null) {
+                    encryptCipher.init(Cipher.ENCRYPT_MODE, ContactsBook.getInstance().getDialer().getKey());
+                }
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
             }

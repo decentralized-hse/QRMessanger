@@ -2,6 +2,7 @@ package ru.hattonuri.QRMessanger.utils;
 
 import android.util.Base64;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,12 +18,6 @@ public class CommonUtils {
     public static <K, V> V getOrDefault(Map<K, V> map, K key, V value) {
         V val = map.get(key);
         return (val == null ? value : val);
-    }
-
-    public static <T> void setIfNotNull(T toSet, T value) {
-        if (value != null) {
-            toSet = value;
-        }
     }
 
     public static long subBits(long ch, int left, int right) {
@@ -52,5 +47,29 @@ public class CommonUtils {
             bits += 16;
         }
         return num;
+    }
+
+    private static final ByteBuffer buffer = ByteBuffer.allocate(8);
+
+    public static byte[] longToBytes(long x) {
+        return buffer.putLong(x).array();
+    }
+
+    public static long bytesToLong(byte[] bytes) {
+        buffer.put(bytes);
+        buffer.flip();
+        return buffer.getLong();
+    }
+
+
+    private static final String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    public static String generateRandomString(int size) {
+        StringBuilder sb = new StringBuilder();
+        Random rnd = new Random();
+        while (size > 0) {
+            sb.append(alphabet.charAt(rnd.nextInt(alphabet.length())));
+            --size;
+        }
+        return sb.toString();
     }
 }

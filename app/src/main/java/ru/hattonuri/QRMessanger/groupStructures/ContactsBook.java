@@ -1,8 +1,10 @@
 package ru.hattonuri.QRMessanger.groupStructures;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
@@ -14,13 +16,23 @@ import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 import ru.hattonuri.QRMessanger.utils.SaveUtils;
 
 public class ContactsBook {
+    @AllArgsConstructor @NoArgsConstructor
+    public static class User {
+        @Getter @Setter
+        private String uuid;
+        @Getter @Setter
+        private PublicKey key;
+    }
+
     @Getter @Setter
     private PrivateKey privateKey;
     @Getter @Setter
@@ -28,12 +40,15 @@ public class ContactsBook {
     @Getter @Setter
     private String activeReceiverKey;
     @Getter @Setter
-    private Map<String, PublicKey> users = new HashMap<>();
+    private Map<String, User> users = new HashMap<>();
 
     private static ContactsBook instance;
     public static ContactsBook getInstance() {
         if (instance == null) {
             instance = SaveUtils.load(LaunchActivity.getInstance(), ContactsBook.class, null, "contacts.json");
+            if (instance == null) {
+                instance = new ContactsBook();
+            }
         }
         return instance;
     }
@@ -42,7 +57,7 @@ public class ContactsBook {
         SaveUtils.save(LaunchActivity.getInstance(), this, null, "contacts.json");
     }
 
-    public PublicKey getDialer() {
+    public User getDialer() {
         return activeReceiverKey == null ? null : users.get(activeReceiverKey);
     }
 
@@ -68,7 +83,13 @@ public class ContactsBook {
             JsonObject users = jsonObject.getAsJsonObject("users");
             if (users != null) {
                 for (Map.Entry<String, JsonElement> entry : users.entrySet()) {
-                    result.users.put(entry.getKey(), ConversionUtils.getPublicKey(entry.getValue().getAsString()));
+                    JsonArray ar = entry.getValue().getAsJsonArray();
+                    String uuid = ar.get(0).getAsString();
+                    PublicKey key = null;
+                    if (!(ar.get(1) instanceof JsonNull)) {
+                        key = ConversionUtils.getPublicKey(ar.get(1).getAsString());
+                    }
+                    result.users.put(entry.getKey(), new User(uuid, key));
                 }
             }
 
@@ -83,8 +104,11 @@ public class ContactsBook {
             result.addProperty("active", src.activeReceiverKey);
 
             JsonObject usersMap = new JsonObject();
-            for (Map.Entry<String, PublicKey> entry : src.users.entrySet()) {
-                usersMap.addProperty(entry.getKey(), ConversionUtils.parseKey(entry.getValue()));
+            for (Map.Entry<String, User> entry : src.users.entrySet()) {
+                JsonArray array = new JsonArray(2);
+                array.add(entry.getValue().uuid);
+                array.add(ConversionUtils.parseKey(entry.getValue().key));
+                usersMap.add(entry.getKey(), array);
             }
             result.add("users", usersMap);
             return result;
