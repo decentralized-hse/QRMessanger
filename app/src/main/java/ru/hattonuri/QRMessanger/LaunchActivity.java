@@ -23,6 +23,7 @@ import ru.hattonuri.QRMessanger.managers.CryptoManager;
 import ru.hattonuri.QRMessanger.managers.HistoryManager;
 import ru.hattonuri.QRMessanger.managers.ImageManager;
 import ru.hattonuri.QRMessanger.managers.MenuManager;
+import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 import ru.hattonuri.QRMessanger.utils.PermissionsUtils;
 
 public class LaunchActivity extends AppCompatActivity {
@@ -80,6 +81,7 @@ public class LaunchActivity extends AppCompatActivity {
             return;
         }
         String msgText = ContactsBook.getInstance().getDialer().getUuid() + text;
+        MessagingUtils.debugError("UUID FROM", ContactsBook.getInstance().getDialer().getUuid());
         imageManager.updateEncode(msgText);
         editText.setText("");
         HistoryManager.getInstance().addMessage(new Message(

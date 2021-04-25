@@ -48,18 +48,20 @@ public class DialogUtils {
                     setPositiveButton("Accept", null).
                     setNegativeButton("Decline", null).setView(view).show();
             dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-                String input = editText.getText().toString();
-                ContactsBook.User collision = ContactsBook.getInstance().getUsers().get(input);
-                if (input.isEmpty()) {
-                    Toast.makeText(activity, activity.getString(R.string.msg_name_empty), Toast.LENGTH_SHORT).show();
-                } else
-                if (collision != null && collision.getKey() != null) {
-                    Toast.makeText(activity, activity.getString(R.string.msg_user_exists), Toast.LENGTH_LONG).show();
-                } else {
-                    CryptoManager.getInstance().addContact(input, ConversionUtils.getPublicKey(text));
-                    dialog.dismiss();
-                }
-            }
+                        String input = editText.getText().toString();
+                        ContactsBook.User collision = ContactsBook.getInstance().getUsers().get(input);
+                        if (input.isEmpty()) {
+                            Toast.makeText(activity, activity.getString(R.string.msg_name_empty), Toast.LENGTH_SHORT).show();
+                        } else if (collision != null && collision.getKey() != null) {
+                            Toast.makeText(activity, activity.getString(R.string.msg_user_exists), Toast.LENGTH_LONG).show();
+                        } else {
+                            CryptoManager.getInstance().addContact(input, ConversionUtils.getPublicKey(text));
+                            if (input.equals(ContactsBook.getInstance().getActiveReceiverKey())) {
+                                CryptoManager.getInstance().updateEncryptCipher(input);
+                            }
+                            dialog.dismiss();
+                        }
+                    }
             );
             activity.getImageManager().update(text);
         });

@@ -19,6 +19,7 @@ import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.groupStructures.Message;
 import ru.hattonuri.QRMessanger.utils.ConversionUtils;
 import ru.hattonuri.QRMessanger.utils.DialogUtils;
+import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 
 @AllArgsConstructor
 public class ActivityResultDispatcher {
@@ -49,6 +50,7 @@ public class ActivityResultDispatcher {
 
         int uuidLen =  activity.getResources().getInteger(R.integer.identity_key_len);
         String uuid = decoded.substring(0, uuidLen);
+        MessagingUtils.debugError("UUID TO", uuid);
         decoded = decoded.substring(uuidLen);
         for (Map.Entry<String, ContactsBook.User> userEntry : ContactsBook.getInstance().getUsers().entrySet()) {
             String name = userEntry.getKey();
@@ -63,7 +65,7 @@ public class ActivityResultDispatcher {
         String finalDecoded = decoded;
         DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
             Toast.makeText(activity, finalDecoded, Toast.LENGTH_LONG).show();
-            CryptoManager.getInstance().addContact(input, null);
+            CryptoManager.getInstance().addContact(input, null, uuid);
             HistoryManager.getInstance().addMessage(new Message(System.currentTimeMillis(), input, finalDecoded, true));
         }, null);
     }
@@ -73,10 +75,6 @@ public class ActivityResultDispatcher {
         Uri uri = intent.getData();
         Bitmap bitmap = ConversionUtils.getUriBitmap(activity, uri, 800);
         activity.getImageManager().update(bitmap, uri);
-//        DialogUtils.makeInputDialog(activity, activity.getResources().getString(R.string.dialog_input_name), input -> {
-//            CryptoManager.getInstance().addContact(input, ConversionUtils.getPublicKey(activity.getImageManager().getRawText()));
-//            ContactsBook.getInstance().saveState();
-//        }, null);
         DialogUtils.makeAddContactDialog(activity, activity.getImageManager().getRawText());
     }
 }

@@ -16,6 +16,7 @@ import ru.hattonuri.QRMessanger.LaunchActivity;
 import ru.hattonuri.QRMessanger.R;
 import ru.hattonuri.QRMessanger.groupStructures.ContactsBook;
 import ru.hattonuri.QRMessanger.utils.CommonUtils;
+import ru.hattonuri.QRMessanger.utils.MessagingUtils;
 
 public class CryptoManager {
     @Getter
@@ -43,11 +44,15 @@ public class CryptoManager {
     }
 
     public void addContact(String name, PublicKey key) {
+        addContact(name, key, CommonUtils.generateRandomString(LaunchActivity.getInstance().getResources().getInteger(R.integer.identity_key_len)));
+    }
+
+    public void addContact(String name, PublicKey key, String uuid) {
         ContactsBook.User current = ContactsBook.getInstance().getUsers().get(name);
         if (current != null) {
             current.setKey(key);
         } else {
-            String uuid = CommonUtils.generateRandomString(LaunchActivity.getInstance().getResources().getInteger(R.integer.identity_key_len));
+            MessagingUtils.debugError("ADD CONTACT UUID", uuid);
             ContactsBook.getInstance().getUsers().put(name, new ContactsBook.User(uuid, key));
         }
         ContactsBook.getInstance().saveState();
